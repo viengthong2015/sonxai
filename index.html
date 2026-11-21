@@ -1,0 +1,635 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sonxai Primary School | Where Every Child Learns, Grows & Shines</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Noto+Sans+Lao:wght@400;600;700&display=swap" rel="stylesheet">
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'Noto Sans Lao', 'sans-serif'],
+                    },
+                    colors: {
+                        brand: {
+                            50: '#ecfdf5',
+                            100: '#d1fae5',
+                            500: '#10b981',
+                            600: '#059669',
+                            700: '#047857',
+                            800: '#065f46',
+                            900: '#064e3b',
+                            dark: '#022c22'
+                        },
+                        amber: {
+                            400: '#fbbf24',
+                            500: '#f59e0b',
+                            600: '#d97706'
+                        }
+                    },
+                    animation: {
+                        'float-slow': 'float 6s ease-in-out infinite',
+                        'float-medium': 'float 4s ease-in-out infinite',
+                        'float-fast': 'float 3s ease-in-out infinite',
+                        'pulse-glow': 'pulseGlow 4s ease-in-out infinite',
+                    },
+                    keyframes: {
+                        float: {
+                            '0%, 100%': { transform: 'translateY(0px) rotate(0deg)' },
+                            '50%': { transform: 'translateY(-14px) rotate(3deg)' },
+                        },
+                        pulseGlow: {
+                            '0%, 100%': { opacity: '0.4', transform: 'scale(1)' },
+                            '50%': { opacity: '0.7', transform: 'scale(1.08)' },
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        /* Glassmorphism effects */
+        .glass-card {
+            background: rgba(255, 255, 255, 0.12);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        .glass-nav {
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+        }
+        .hero-gradient {
+            background: radial-gradient(circle at 80% 20%, #0d9488 0%, #047857 35%, #064e3b 75%, #022c22 100%);
+        }
+        .custom-shadow {
+            box-shadow: 0 20px 40px -15px rgba(0, 0, 0, 0.3);
+        }
+    </style>
+</head>
+<body class="font-sans text-slate-800 bg-slate-50 antialiased overflow-x-hidden">
+
+    <!-- Header Navigation -->
+    <header class="sticky top-0 z-50 glass-nav border-b border-slate-200/80 transition-all duration-300">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-20">
+                
+                <!-- Brand Logo -->
+                <a href="#" class="flex items-center gap-3 group">
+                    <div class="w-11 h-11 rounded-2xl bg-gradient-to-tr from-brand-700 to-teal-500 flex items-center justify-center text-white shadow-md shadow-brand-700/20 group-hover:scale-105 transition-transform duration-300">
+                        <i class="fa-solid fa-graduation-cap text-xl"></i>
+                    </div>
+                    <div class="flex flex-col">
+                        <span class="font-extrabold text-xl text-slate-900 tracking-tight leading-none group-hover:text-brand-700 transition-colors">Sonxai</span>
+                        <span class="text-xs font-semibold text-brand-600 tracking-widest uppercase mt-0.5">Primary School</span>
+                    </div>
+                </a>
+
+                <!-- Desktop Navigation Links -->
+                <nav class="hidden md:flex items-center gap-1 bg-slate-100/80 p-1.5 rounded-full border border-slate-200/60">
+                    <a href="#home" class="px-5 py-2 text-sm font-semibold rounded-full bg-white text-brand-700 shadow-sm transition-all">Home</a>
+                    <a href="#services" class="px-5 py-2 text-sm font-medium text-slate-600 hover:text-brand-700 rounded-full hover:bg-white/60 transition-all">Services & Programs</a>
+                    <a href="#about" class="px-5 py-2 text-sm font-medium text-slate-600 hover:text-brand-700 rounded-full hover:bg-white/60 transition-all">About Us</a>
+                    <a href="#partners" class="px-5 py-2 text-sm font-medium text-slate-600 hover:text-brand-700 rounded-full hover:bg-white/60 transition-all">Partners</a>
+                    <a href="#enrollment" class="px-5 py-2 text-sm font-medium text-slate-600 hover:text-brand-700 rounded-full hover:bg-white/60 transition-all">Enrollment</a>
+                </nav>
+
+                <!-- Actions: Dashboard & Language Switcher -->
+                <div class="hidden lg:flex items-center gap-3">
+                    <!-- Dashboard Button -->
+                    <button onclick="openModal('dashboardModal')" class="flex items-center gap-2 px-5 py-2.5 rounded-full bg-brand-700 hover:bg-brand-800 text-white font-semibold text-sm shadow-md shadow-brand-700/25 hover:shadow-lg transition-all duration-300 active:scale-95">
+                        <i class="fa-regular fa-user text-sm"></i>
+                        <span>Dashboard</span>
+                    </button>
+
+                    <!-- Language Selector -->
+                    <div class="relative inline-block text-left" id="langDropdownWrapper">
+                        <button onclick="toggleLangDropdown()" class="flex items-center gap-2 px-4 py-2.5 rounded-full bg-white border border-slate-200 text-slate-700 hover:bg-slate-50 font-medium text-sm transition-colors">
+                            <i class="fa-solid fa-globe text-brand-600"></i>
+                            <span id="currentLang">English</span>
+                            <i class="fa-solid fa-chevron-down text-xs text-slate-400"></i>
+                        </button>
+                        <div id="langDropdown" class="hidden absolute right-0 mt-2 w-40 rounded-2xl bg-white shadow-xl border border-slate-100 py-2 z-50 transform opacity-0 scale-95 transition-all duration-200">
+                            <button onclick="selectLanguage('English')" class="w-full text-left px-4 py-2 text-sm text-slate-700 hover:bg-brand-50 hover:text-brand-700 flex items-center justify-between font-medium">
+                                <span>English</span>
+                                <i class="fa-solid fa-check text-xs text-brand-600" id="check-en"></i>
+                            </button>
+                            <button onclick="selectLanguage('Lao')" class="w-full text-left px-4 py-2 text-sm text-slate-700 hover:bg-brand-50 hover:text-brand-700 flex items-center justify-between font-medium">
+                                <span>ພາສາລາວ (Lao)</span>
+                                <i class="fa-solid fa-check text-xs text-brand-600 hidden" id="check-la"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Mobile Menu Button -->
+                <div class="md:hidden flex items-center gap-2">
+                    <button onclick="toggleMobileMenu()" class="p-2.5 rounded-xl text-slate-600 hover:text-slate-900 hover:bg-slate-100 transition-colors" aria-label="Toggle Navigation">
+                        <i class="fa-solid fa-bars text-xl" id="menuIcon"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Mobile Navigation Menu -->
+        <div id="mobileMenu" class="hidden md:hidden border-t border-slate-200 bg-white px-4 pt-3 pb-6 space-y-2 shadow-xl">
+            <a href="#home" onclick="toggleMobileMenu()" class="block px-4 py-2.5 rounded-xl text-brand-700 font-semibold bg-brand-50">Home</a>
+            <a href="#services" onclick="toggleMobileMenu()" class="block px-4 py-2.5 rounded-xl text-slate-600 font-medium hover:bg-slate-50">Services & Programs</a>
+            <a href="#about" onclick="toggleMobileMenu()" class="block px-4 py-2.5 rounded-xl text-slate-600 font-medium hover:bg-slate-50">About Us</a>
+            <a href="#partners" onclick="toggleMobileMenu()" class="block px-4 py-2.5 rounded-xl text-slate-600 font-medium hover:bg-slate-50">Partners</a>
+            <a href="#enrollment" onclick="toggleMobileMenu()" class="block px-4 py-2.5 rounded-xl text-slate-600 font-medium hover:bg-slate-50">Enrollment</a>
+            <div class="pt-4 border-t border-slate-100 flex flex-col gap-2">
+                <button onclick="openModal('dashboardModal')" class="w-full flex items-center justify-center gap-2 py-3 rounded-xl bg-brand-700 text-white font-semibold text-sm">
+                    <i class="fa-regular fa-user"></i>
+                    <span>Dashboard</span>
+                </button>
+                <div class="flex gap-2 pt-2">
+                    <button onclick="selectLanguage('English')" class="flex-1 py-2 text-xs font-semibold rounded-lg border border-slate-200 text-slate-700 hover:bg-slate-50">English</button>
+                    <button onclick="selectLanguage('Lao')" class="flex-1 py-2 text-xs font-semibold rounded-lg border border-slate-200 text-slate-700 hover:bg-slate-50">ພາສາລາວ</button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Hero Section -->
+    <section id="home" class="relative hero-gradient text-white overflow-hidden py-16 lg:py-28">
+        
+        <!-- Background Ambient Glow & Patterns -->
+        <div class="absolute top-1/4 left-10 w-96 h-96 bg-emerald-400/20 rounded-full blur-3xl pointer-events-none animate-pulse-glow"></div>
+        <div class="absolute bottom-10 right-1/4 w-96 h-96 bg-teal-300/20 rounded-full blur-3xl pointer-events-none animate-pulse-glow"></div>
+        <div class="absolute inset-0 bg-[radial-gradient(#ffffff_1px,transparent_1px)] [background-size:32px_32px] opacity-10 pointer-events-none"></div>
+
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-8 items-center">
+                
+                <!-- Hero Left Content -->
+                <div class="lg:col-span-7 text-center lg:text-left space-y-8">
+                    
+                    <!-- Eyebrow Tag -->
+                    <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-amber-400/20 border border-amber-400/40 text-amber-300 text-xs sm:text-sm font-bold tracking-widest uppercase backdrop-blur-md">
+                        <span class="w-2 h-2 rounded-full bg-amber-400 animate-ping"></span>
+                        <span id="txt-eyebrow">SONXAI PRIMARY SCHOOL</span>
+                    </div>
+
+                    <!-- Main Headline -->
+                    <h1 class="text-4xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight leading-[1.15] text-white">
+                        <span id="txt-headline">Where every child learns, grows and shines</span>
+                    </h1>
+
+                    <!-- Subtitle -->
+                    <p class="text-base sm:text-lg lg:text-xl text-emerald-100/90 font-normal max-w-2xl mx-auto lg:mx-0 leading-relaxed" id="txt-subtitle">
+                        A caring primary school offering a strong academic foundation, creative arts, sports, and a safe, joyful place to learn.
+                    </p>
+
+                    <!-- CTA Buttons -->
+                    <div class="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-4 pt-2">
+                        <button onclick="openModal('applyModal')" class="w-full sm:w-auto px-8 py-4 rounded-full bg-gradient-to-r from-amber-400 to-amber-500 hover:from-amber-500 hover:to-amber-600 text-slate-900 font-bold text-base shadow-xl shadow-amber-500/25 hover:shadow-amber-500/40 hover:-translate-y-0.5 transition-all duration-300 flex items-center justify-center gap-3">
+                            <span id="txt-btn-apply">Apply now</span>
+                            <i class="fa-solid fa-arrow-right text-sm"></i>
+                        </button>
+                        
+                        <a href="#services" class="w-full sm:w-auto px-8 py-4 rounded-full glass-card hover:bg-white/20 text-white font-semibold text-base transition-all duration-300 border border-white/30 hover:border-white/50 text-center flex items-center justify-center">
+                            <span id="txt-btn-explore">Explore programs</span>
+                        </a>
+                    </div>
+
+                    <!-- Trust Badge Row -->
+                    <div class="pt-6 border-t border-white/10 flex flex-wrap items-center justify-center lg:justify-start gap-6 text-xs text-emerald-100/70 font-medium">
+                        <span class="flex items-center gap-2"><i class="fa-solid fa-shield-halved text-amber-400"></i> Certified Curriculum</span>
+                        <span class="flex items-center gap-2"><i class="fa-solid fa-heart text-rose-400"></i> Caring Environment</span>
+                        <span class="flex items-center gap-2"><i class="fa-solid fa-award text-teal-300"></i> Awarded Excellence</span>
+                    </div>
+
+                </div>
+
+                <!-- Hero Right Interactive Bubble Graphic -->
+                <div class="lg:col-span-5 relative flex items-center justify-center min-h-[380px] sm:min-h-[460px]">
+                    
+                    <!-- Decorative Central Circle Backdrop -->
+                    <div class="w-72 h-72 sm:w-96 sm:h-96 rounded-full border border-white/10 bg-white/5 backdrop-blur-sm absolute flex items-center justify-center pointer-events-none">
+                        <div class="w-48 h-48 sm:w-64 sm:h-64 rounded-full border border-white/15 bg-white/5"></div>
+                    </div>
+
+                    <!-- Floating Bubble 1: Lao Alphabet (Yellow/Gold) -->
+                    <div class="absolute top-4 sm:top-8 right-8 sm:right-14 w-28 h-28 sm:w-36 sm:h-36 rounded-full bg-gradient-to-br from-amber-400 to-amber-500 shadow-2xl custom-shadow flex items-center justify-center text-slate-900 font-bold text-2xl sm:text-3xl animate-float-slow transform hover:scale-110 transition-transform cursor-pointer group" title="Lao Language Foundation">
+                        <div class="text-center group-hover:rotate-6 transition-transform">
+                            <span class="tracking-wider">ກ ຂ ຄ</span>
+                            <span class="block text-[10px] sm:text-xs font-semibold text-amber-950 opacity-80 uppercase tracking-widest mt-0.5">Lao Arts</span>
+                        </div>
+                    </div>
+
+                    <!-- Floating Bubble 2: English Alphabet (White Glass) -->
+                    <div class="absolute top-28 sm:top-36 left-4 sm:left-10 w-24 h-24 sm:w-32 sm:h-32 rounded-full bg-white/95 text-brand-800 shadow-2xl custom-shadow flex items-center justify-center font-extrabold text-xl sm:text-2xl animate-float-medium transform hover:scale-110 transition-transform cursor-pointer group" title="Bilingual Literacy">
+                        <div class="text-center group-hover:-rotate-6 transition-transform">
+                            <span class="tracking-widest text-brand-700">A B C</span>
+                            <span class="block text-[9px] sm:text-[10px] font-bold text-slate-400 uppercase tracking-wider mt-0.5">English</span>
+                        </div>
+                    </div>
+
+                    <!-- Floating Bubble 3: Mathematics (Vibrant Mint/Emerald) -->
+                    <div class="absolute bottom-6 sm:bottom-10 right-4 sm:right-10 w-28 h-28 sm:w-36 sm:h-36 rounded-full bg-gradient-to-br from-emerald-400 to-teal-400 text-slate-900 shadow-2xl custom-shadow flex items-center justify-center font-black text-2xl sm:text-3xl animate-float-fast transform hover:scale-110 transition-transform cursor-pointer group" title="STEM & Math Logic">
+                        <div class="text-center group-hover:scale-105 transition-transform">
+                            <span>1 + 2</span>
+                            <span class="block text-[10px] sm:text-xs font-bold text-emerald-950 opacity-80 uppercase tracking-widest mt-0.5">Mathematics</span>
+                        </div>
+                    </div>
+
+                    <!-- Floating Bubble 4: Nature / Growth (Pink Sprout Icon) -->
+                    <div class="absolute bottom-28 sm:bottom-36 left-12 sm:left-20 w-20 h-20 sm:w-24 sm:h-24 rounded-full bg-gradient-to-tr from-pink-400 to-rose-400 text-white shadow-2xl custom-shadow flex items-center justify-center text-2xl sm:text-3xl animate-float-slow transform hover:scale-110 transition-transform cursor-pointer group" style="animation-delay: -2s;" title="Holistic Growth & Environment">
+                        <div class="flex flex-col items-center justify-center group-hover:bounce transition-transform">
+                            <i class="fa-solid fa-seedling text-white drop-shadow-md"></i>
+                            <span class="text-[9px] font-bold text-rose-950 opacity-90 uppercase tracking-tighter mt-1">Growth</span>
+                        </div>
+                    </div>
+
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+    <!-- Statistics Section -->
+    <section class="relative z-20 -mt-8 sm:-mt-12 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="bg-white rounded-3xl shadow-xl shadow-slate-200/80 border border-slate-100 p-6 sm:p-8 md:p-10">
+            <div class="grid grid-cols-2 lg:grid-cols-4 gap-6 sm:gap-8 divide-y sm:divide-y-0 divide-slate-100">
+                
+                <!-- Stat Item 1 -->
+                <div class="flex flex-col items-center text-center p-2">
+                    <div class="w-12 h-12 rounded-2xl bg-brand-50 text-brand-600 flex items-center justify-center text-xl mb-3">
+                        <i class="fa-solid fa-face-smile"></i>
+                    </div>
+                    <div class="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-brand-700 tracking-tight" data-target="450">0</div>
+                    <div class="text-xs sm:text-sm font-semibold text-slate-500 uppercase tracking-wider mt-1" id="stat-students">Happy Students</div>
+                </div>
+
+                <!-- Stat Item 2 -->
+                <div class="flex flex-col items-center text-center p-2 pt-6 sm:pt-2">
+                    <div class="w-12 h-12 rounded-2xl bg-teal-50 text-teal-600 flex items-center justify-center text-xl mb-3">
+                        <i class="fa-solid fa-chalkboard-user"></i>
+                    </div>
+                    <div class="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-brand-700 tracking-tight" data-target="32">0</div>
+                    <div class="text-xs sm:text-sm font-semibold text-slate-500 uppercase tracking-wider mt-1" id="stat-teachers">Qualified Teachers</div>
+                </div>
+
+                <!-- Stat Item 3 -->
+                <div class="flex flex-col items-center text-center p-2 pt-6 sm:pt-2">
+                    <div class="w-12 h-12 rounded-2xl bg-amber-50 text-amber-600 flex items-center justify-center text-xl mb-3">
+                        <i class="fa-solid fa-users"></i>
+                    </div>
+                    <div class="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-brand-700 tracking-tight flex items-center">
+                        <span id="stat-ratio-val">20:1</span>
+                    </div>
+                    <div class="text-xs sm:text-sm font-semibold text-slate-500 uppercase tracking-wider mt-1" id="stat-ratio">Student-Teacher Ratio</div>
+                </div>
+
+                <!-- Stat Item 4 -->
+                <div class="flex flex-col items-center text-center p-2 pt-6 sm:pt-2">
+                    <div class="w-12 h-12 rounded-2xl bg-emerald-50 text-emerald-600 flex items-center justify-center text-xl mb-3">
+                        <i class="fa-solid fa-trophy"></i>
+                    </div>
+                    <div class="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-brand-700 tracking-tight" data-target="15">0</div>
+                    <div class="text-xs sm:text-sm font-semibold text-slate-500 uppercase tracking-wider mt-1" id="stat-years">Years of Excellence</div>
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+    <!-- Interactive Educational Programs Section -->
+    <section id="services" class="py-20 lg:py-28 bg-slate-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center max-w-3xl mx-auto mb-16">
+                <span class="text-xs font-extrabold text-brand-600 tracking-widest uppercase bg-brand-100/60 px-4 py-1.5 rounded-full">Our Core Pillars</span>
+                <h2 class="text-3xl sm:text-4xl font-extrabold text-slate-900 mt-4 tracking-tight">Holistic Primary Education</h2>
+                <p class="text-slate-600 text-base sm:text-lg mt-3">We balance rigorous academic fundamentals with creative arts, physical health, and emotional well-being.</p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <!-- Card 1 -->
+                <div class="bg-white rounded-3xl p-8 border border-slate-200/80 shadow-sm hover:shadow-xl transition-all duration-300 hover:-translate-y-1 group">
+                    <div class="w-14 h-14 rounded-2xl bg-brand-100 text-brand-700 flex items-center justify-center text-2xl mb-6 group-hover:scale-110 transition-transform">
+                        <i class="fa-solid fa-book-open"></i>
+                    </div>
+                    <h3 class="text-xl font-bold text-slate-900 mb-3">Academic Foundation</h3>
+                    <p class="text-slate-600 text-sm leading-relaxed mb-6">Comprehensive curriculum in Literacy, Mathematics, Science, and Lao Cultural Heritage designed for young minds.</p>
+                    <a href="#" onclick="openModal('applyModal')" class="inline-flex items-center text-sm font-bold text-brand-600 hover:text-brand-800 gap-2">
+                        <span>Learn More</span>
+                        <i class="fa-solid fa-chevron-right text-xs"></i>
+                    </a>
+                </div>
+
+                <!-- Card 2 -->
+                <div class="bg-white rounded-3xl p-8 border border-slate-200/80 shadow-sm hover:shadow-xl transition-all duration-300 hover:-translate-y-1 group">
+                    <div class="w-14 h-14 rounded-2xl bg-amber-100 text-amber-700 flex items-center justify-center text-2xl mb-6 group-hover:scale-110 transition-transform">
+                        <i class="fa-solid fa-palette"></i>
+                    </div>
+                    <h3 class="text-xl font-bold text-slate-900 mb-3">Creative Arts & Music</h3>
+                    <p class="text-slate-600 text-sm leading-relaxed mb-6">Unlocking imagination through visual arts, traditional Lao instruments, drama, and self-expression studios.</p>
+                    <a href="#" onclick="openModal('applyModal')" class="inline-flex items-center text-sm font-bold text-amber-600 hover:text-amber-800 gap-2">
+                        <span>Learn More</span>
+                        <i class="fa-solid fa-chevron-right text-xs"></i>
+                    </a>
+                </div>
+
+                <!-- Card 3 -->
+                <div class="bg-white rounded-3xl p-8 border border-slate-200/80 shadow-sm hover:shadow-xl transition-all duration-300 hover:-translate-y-1 group">
+                    <div class="w-14 h-14 rounded-2xl bg-teal-100 text-teal-700 flex items-center justify-center text-2xl mb-6 group-hover:scale-110 transition-transform">
+                        <i class="fa-solid fa-futbol"></i>
+                    </div>
+                    <h3 class="text-xl font-bold text-slate-900 mb-3">Sports & Health</h3>
+                    <p class="text-slate-600 text-sm leading-relaxed mb-6">Fostering teamwork, motor skills, and wellness through structured physical activity, games, and outdoor sports.</p>
+                    <a href="#" onclick="openModal('applyModal')" class="inline-flex items-center text-sm font-bold text-teal-600 hover:text-teal-800 gap-2">
+                        <span>Learn More</span>
+                        <i class="fa-solid fa-chevron-right text-xs"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Call to Action Banner -->
+    <section class="bg-slate-900 text-white py-16 relative overflow-hidden">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 flex flex-col md:flex-row items-center justify-between gap-8">
+            <div>
+                <h2 class="text-2xl sm:text-3xl font-extrabold text-white">Ready to join the Sonxai Family?</h2>
+                <p class="text-slate-400 text-sm sm:text-base mt-2">Enrollment for the upcoming academic year is now open. Seats are limited!</p>
+            </div>
+            <button onclick="openModal('applyModal')" class="px-8 py-4 rounded-full bg-brand-500 hover:bg-brand-600 text-white font-bold text-base shadow-lg shadow-brand-500/30 transition-all whitespace-nowrap">
+                Start Admissions Application
+            </button>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="bg-slate-950 text-slate-400 py-12 border-t border-slate-800">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex flex-col md:flex-row items-center justify-between gap-6">
+                <div class="flex items-center gap-3">
+                    <div class="w-9 h-9 rounded-xl bg-brand-600 flex items-center justify-center text-white font-bold">
+                        <i class="fa-solid fa-graduation-cap"></i>
+                    </div>
+                    <span class="text-white font-bold text-lg">Sonxai Primary School</span>
+                </div>
+                <p class="text-xs text-slate-500 text-center">© 2026 Sonxai Primary School. All rights reserved. Empowering future leaders with care.</p>
+                <div class="flex items-center gap-4 text-slate-400 text-lg">
+                    <a href="#" class="hover:text-white transition-colors" aria-label="Facebook"><i class="fa-brands fa-facebook"></i></a>
+                    <a href="#" class="hover:text-white transition-colors" aria-label="Youtube"><i class="fa-brands fa-youtube"></i></a>
+                    <a href="#" class="hover:text-white transition-colors" aria-label="Email"><i class="fa-solid fa-envelope"></i></a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- MODAL 1: Admission Application Modal -->
+    <div id="applyModal" class="fixed inset-0 z-50 hidden flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm transition-opacity">
+        <div class="bg-white rounded-3xl shadow-2xl border border-slate-100 max-w-lg w-full p-6 sm:p-8 relative transform scale-95 transition-transform">
+            <button onclick="closeModal('applyModal')" class="absolute top-5 right-5 w-8 h-8 rounded-full bg-slate-100 text-slate-500 hover:bg-slate-200 flex items-center justify-center transition-colors">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+
+            <div class="text-center mb-6">
+                <div class="w-12 h-12 rounded-2xl bg-brand-100 text-brand-700 flex items-center justify-center mx-auto text-xl mb-3">
+                    <i class="fa-solid fa-paper-plane"></i>
+                </div>
+                <h3 class="text-2xl font-bold text-slate-900">Apply for Admission</h3>
+                <p class="text-xs sm:text-sm text-slate-500 mt-1">Fill out the quick form below to request an enrollment pack.</p>
+            </div>
+
+            <form onsubmit="handleFormSubmit(event, 'applyModal')" class="space-y-4">
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">Parent / Guardian Name</label>
+                    <input type="text" required placeholder="e.g. Somchai Soukhaseum" class="w-full px-4 py-3 rounded-xl border border-slate-200 text-sm focus:ring-2 focus:ring-brand-500 focus:outline-none">
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">Contact Phone Number</label>
+                    <input type="tel" required placeholder="+856 20 5555 1234" class="w-full px-4 py-3 rounded-xl border border-slate-200 text-sm focus:ring-2 focus:ring-brand-500 focus:outline-none">
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">Child's Grade Level</label>
+                    <select class="w-full px-4 py-3 rounded-xl border border-slate-200 text-sm focus:ring-2 focus:ring-brand-500 focus:outline-none">
+                        <option>Kindergarten / Prep</option>
+                        <option>Grade 1</option>
+                        <option>Grade 2</option>
+                        <option>Grade 3</option>
+                        <option>Grade 4</option>
+                        <option>Grade 5</option>
+                    </select>
+                </div>
+                <button type="submit" class="w-full py-3.5 rounded-xl bg-brand-600 hover:bg-brand-700 text-white font-bold text-sm shadow-md transition-all">
+                    Submit Application Request
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- MODAL 2: Portal Login Dashboard Modal -->
+    <div id="dashboardModal" class="fixed inset-0 z-50 hidden flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm transition-opacity">
+        <div class="bg-white rounded-3xl shadow-2xl border border-slate-100 max-w-md w-full p-6 sm:p-8 relative transform scale-95 transition-transform">
+            <button onclick="closeModal('dashboardModal')" class="absolute top-5 right-5 w-8 h-8 rounded-full bg-slate-100 text-slate-500 hover:bg-slate-200 flex items-center justify-center transition-colors">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+
+            <div class="text-center mb-6">
+                <div class="w-12 h-12 rounded-2xl bg-brand-700 text-white flex items-center justify-center mx-auto text-xl mb-3 shadow-md">
+                    <i class="fa-solid fa-lock"></i>
+                </div>
+                <h3 class="text-2xl font-bold text-slate-900">Sonxai Portal</h3>
+                <p class="text-xs sm:text-sm text-slate-500 mt-1">Sign in for Parent & Staff Dashboard access.</p>
+            </div>
+
+            <form onsubmit="handleFormSubmit(event, 'dashboardModal')" class="space-y-4">
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">User ID / Email</label>
+                    <input type="text" required placeholder="parent@sonxai.edu.la" class="w-full px-4 py-3 rounded-xl border border-slate-200 text-sm focus:ring-2 focus:ring-brand-500 focus:outline-none">
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">Password</label>
+                    <input type="password" required placeholder="••••••••" class="w-full px-4 py-3 rounded-xl border border-slate-200 text-sm focus:ring-2 focus:ring-brand-500 focus:outline-none">
+                </div>
+                <div class="flex items-center justify-between text-xs">
+                    <label class="flex items-center gap-2 text-slate-600">
+                        <input type="checkbox" class="rounded text-brand-600 focus:ring-brand-500"> Remember me
+                    </label>
+                    <a href="#" class="text-brand-600 font-semibold hover:underline">Forgot?</a>
+                </div>
+                <button type="submit" class="w-full py-3.5 rounded-xl bg-brand-700 hover:bg-brand-800 text-white font-bold text-sm shadow-md transition-all">
+                    Access Dashboard
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Notification Toast Notification -->
+    <div id="toast" class="fixed bottom-6 right-6 z-50 hidden max-w-sm bg-slate-900 text-white px-5 py-4 rounded-2xl shadow-2xl border border-slate-700 flex items-center gap-3">
+        <div class="w-8 h-8 rounded-full bg-brand-500 text-white flex items-center justify-center text-sm shrink-0">
+            <i class="fa-solid fa-check"></i>
+        </div>
+        <p class="text-xs sm:text-sm text-slate-200 font-medium" id="toastMsg">Action completed successfully!</p>
+    </div>
+
+    <!-- JavaScript Interactions & Multi-Language Logic -->
+    <script>
+        // Language Data
+        const translations = {
+            English: {
+                eyebrow: "SONXAI PRIMARY SCHOOL",
+                headline: "Where every child learns, grows and shines",
+                subtitle: "A caring primary school offering a strong academic foundation, creative arts, sports and a safe, joyful place to learn.",
+                btnApply: "Apply now",
+                btnExplore: "Explore programs",
+                statStudents: "Happy students",
+                statTeachers: "Qualified teachers",
+                statRatio: "Student–teacher ratio",
+                statRatioVal: "20:1",
+                statYears: "Years of excellence"
+            },
+            Lao: {
+                eyebrow: "ໂຮງຮຽນປະຖົມ ສອນໄຊ",
+                headline: "ບ່ອນທີ່ເດັກນ້ອຍທຸກຄົນໄດ້ຮຽນຮູ້, ເຕີບໃຫຍ່ ແລະ ໂດດເດັ່ນ",
+                subtitle: "ໂຮງຮຽນປະຖົມທີ່ເອົາໃຈໃສ່ ສ່ງເສີມພື້ນຖານວິຊາການທີ່ເຂັ້ມແຂງ, ສິລະປະສ້າງສັນ, ກິລາ ແລະ ສະພາບແວດລ້ອມທີ່ປອດໄພ.",
+                btnApply: "ສະໝັກຮຽນດ່ວນ",
+                btnExplore: "ຄົ້ນຫາຫຼັກສູດ",
+                statStudents: "ນັກຮຽນທີ່ມີຄວາມສຸກ",
+                statTeachers: "ຄູສອນທີ່ມີຄຸນວຸດທິ",
+                statRatio: "ອັດຕາສ່ວນ ຄູ : ນັກຮຽນ",
+                statRatioVal: "20:1",
+                statYears: "ປີ ແຫ່ງຄວາມເປັນເລີດ"
+            }
+        };
+
+        // Modal Handlers
+        function openModal(id) {
+            const modal = document.getElementById(id);
+            modal.classList.remove('hidden');
+        }
+
+        function closeModal(id) {
+            const modal = document.getElementById(id);
+            modal.classList.add('hidden');
+        }
+
+        function handleFormSubmit(event, modalId) {
+            event.preventDefault();
+            closeModal(modalId);
+            showToast('Thank you! Your request has been submitted successfully.');
+        }
+
+        function showToast(message) {
+            const toast = document.getElementById('toast');
+            document.getElementById('toastMsg').innerText = message;
+            toast.classList.remove('hidden');
+            setTimeout(() => {
+                toast.classList.add('hidden');
+            }, 3500);
+        }
+
+        // Mobile Menu Toggle
+        function toggleMobileMenu() {
+            const menu = document.getElementById('mobileMenu');
+            menu.classList.toggle('hidden');
+        }
+
+        // Language Dropdown Switcher
+        function toggleLangDropdown() {
+            const dropdown = document.getElementById('langDropdown');
+            if (dropdown.classList.contains('hidden')) {
+                dropdown.classList.remove('hidden');
+                setTimeout(() => {
+                    dropdown.classList.remove('opacity-0', 'scale-95');
+                }, 10);
+            } else {
+                dropdown.classList.add('opacity-0', 'scale-95');
+                setTimeout(() => {
+                    dropdown.classList.add('hidden');
+                }, 200);
+            }
+        }
+
+        function selectLanguage(lang) {
+            document.getElementById('currentLang').innerText = lang;
+            
+            // Checkmarks
+            document.getElementById('check-en').classList.toggle('hidden', lang !== 'English');
+            document.getElementById('check-la').classList.toggle('hidden', lang !== 'Lao');
+
+            // Apply translations
+            const data = translations[lang];
+            if (data) {
+                document.getElementById('txt-eyebrow').innerText = data.eyebrow;
+                document.getElementById('txt-headline').innerText = data.headline;
+                document.getElementById('txt-subtitle').innerText = data.subtitle;
+                document.getElementById('txt-btn-apply').innerText = data.btnApply;
+                document.getElementById('txt-btn-explore').innerText = data.btnExplore;
+                document.getElementById('stat-students').innerText = data.statStudents;
+                document.getElementById('stat-teachers').innerText = data.statTeachers;
+                document.getElementById('stat-ratio').innerText = data.statRatio;
+                document.getElementById('stat-ratio-val').innerText = data.statRatioVal;
+                document.getElementById('stat-years').innerText = data.statYears;
+            }
+
+            toggleLangDropdown();
+            showToast(`Language changed to ${lang}`);
+        }
+
+        // Close dropdown when clicking outside
+        document.addEventListener('click', (e) => {
+            const wrapper = document.getElementById('langDropdownWrapper');
+            if (wrapper && !wrapper.contains(e.target)) {
+                const dropdown = document.getElementById('langDropdown');
+                if (!dropdown.classList.contains('hidden')) {
+                    dropdown.classList.add('opacity-0', 'scale-95');
+                    setTimeout(() => dropdown.classList.add('hidden'), 200);
+                }
+            }
+        });
+
+        // Animated Number Counters on Scroll
+        let animated = false;
+        function animateStats() {
+            if (animated) return;
+            const counters = document.querySelectorAll('[data-target]');
+            counters.forEach(counter => {
+                const target = +counter.getAttribute('data-target');
+                let count = 0;
+                const speed = target / 40;
+                const updateCount = () => {
+                    count += speed;
+                    if (count < target) {
+                        counter.innerText = Math.ceil(count) + '+';
+                        setTimeout(updateCount, 30);
+                    } else {
+                        counter.innerText = target + '+';
+                    }
+                };
+                updateCount();
+            });
+            animated = true;
+        }
+
+        // Trigger Counter Animation when visible
+        window.addEventListener('scroll', () => {
+            const statsSection = document.querySelector('[data-target]');
+            if (statsSection) {
+                const rect = statsSection.getBoundingClientRect();
+                if (rect.top <= window.innerHeight) {
+                    animateStats();
+                }
+            }
+        });
+
+        // Initial run in case already in viewport
+        window.onload = () => {
+            animateStats();
+        };
+    </script>
+</body>
+</html>

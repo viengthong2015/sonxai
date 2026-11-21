@@ -1,0 +1,114 @@
+@import '@fortawesome/fontawesome-free/css/all.min.css';
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  /* Public website typography: Andika for Latin, Noto Sans Lao (Looped for headings). */
+  .school {
+    @apply font-school text-ink;
+    font-size: 17px;
+    line-height: 1.7; /* generous, so Lao vowel and tone marks never clip */
+  }
+  /* Element-level specificity: beats Tailwind's reset (font-weight: inherit) but still loses
+     to utility classes such as text-white or leading-*. */
+  :where(.school) :is(h1, h2, h3, h4) {
+    @apply font-display;
+    font-weight: 700;
+    line-height: 1.25;
+    text-wrap: balance;
+  }
+  /* Lao stacks tone marks above and vowels below the line: give headings more room. */
+  html:lang(lo) .school :is(h1, h2, h3) {
+    line-height: 1.45;
+  }
+  :where(.school) :focus-visible {
+    outline: 3px solid #ee8a1e;
+    outline-offset: 3px;
+    border-radius: 4px;
+  }
+}
+
+@layer components {
+  .glass-nav {
+    background: rgba(255, 255, 255, 0.9);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+  }
+  /* Lapis "school board": solid logo blue with faint chalk rules. */
+  .board {
+    background-color: #1f3a93;
+    background-image: repeating-linear-gradient(to bottom, transparent 0 47px, rgba(255, 255, 255, 0.05) 47px 48px);
+  }
+  /* Used by the admin login and status screens. */
+  .hero-gradient {
+    @apply board;
+  }
+  /* Exercise-book paper: blue ruled lines and a magenta margin line. */
+  .ruled-paper {
+    background-color: #fff;
+    background-image:
+      linear-gradient(to right, transparent 22px, rgba(194, 24, 122, 0.45) 22px, rgba(194, 24, 122, 0.45) 23.5px, transparent 23.5px),
+      repeating-linear-gradient(to bottom, transparent 0 25px, #c9d3ee 25px 26px);
+  }
+  .paper-shadow {
+    box-shadow:
+      0 1px 0 rgba(24, 32, 79, 0.08),
+      0 18px 30px -14px rgba(8, 14, 48, 0.55);
+  }
+  /* The one action colour, everywhere: Marigold (the orange child in the logo). */
+  .btn-apply {
+    @apply inline-flex items-center justify-center gap-2.5 rounded-full bg-marigold-500 px-7 py-3.5 font-bold text-ink
+      transition-colors hover:bg-marigold-400 active:bg-marigold-600;
+  }
+  .btn-outline-light {
+    @apply inline-flex items-center justify-center gap-2 rounded-full border-2 border-white/60 px-7 py-3 font-bold text-white
+      transition-colors hover:border-white hover:bg-white/10;
+  }
+
+  /* Admin form controls */
+  .input {
+    @apply w-full px-3.5 py-2.5 rounded-xl border border-slate-200 bg-white text-sm text-slate-800 placeholder:text-slate-400
+      focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-brand-500 transition;
+  }
+  .btn {
+    @apply inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold transition
+      disabled:opacity-50 disabled:cursor-not-allowed active:scale-[0.98];
+  }
+  .btn-primary {
+    @apply btn bg-brand-700 hover:bg-brand-800 text-white shadow-sm shadow-brand-700/20;
+  }
+  .btn-secondary {
+    @apply btn bg-white border border-slate-200 text-slate-700 hover:bg-slate-50;
+  }
+  .btn-danger {
+    @apply btn bg-rose-600 hover:bg-rose-700 text-white;
+  }
+  .btn-ghost {
+    @apply btn text-slate-600 hover:bg-slate-100;
+  }
+  .icon-btn {
+    @apply inline-flex items-center justify-center w-8 h-8 rounded-lg text-slate-500 hover:bg-slate-100 hover:text-slate-800 transition
+      disabled:opacity-30 disabled:cursor-not-allowed;
+  }
+  .card {
+    @apply bg-white rounded-2xl border border-slate-200/80 shadow-sm;
+  }
+  .label {
+    @apply flex items-center gap-2 text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5;
+  }
+}
+
+/* Rich text editor */
+.tiptap {
+  min-height: 160px;
+  outline: none;
+}
+.tiptap p.is-editor-empty:first-child::before {
+  content: attr(data-placeholder);
+  float: left;
+  color: #94a3b8;
+  pointer-events: none;
+  height: 0;
+}
