@@ -33,6 +33,20 @@ class Settings(BaseSettings):
     initial_admin_username: str = "admin"
     initial_admin_password: str | None = None
 
+    # Optional machine translation (Google Cloud Translation API v2). Empty = feature off.
+    google_translate_api_key: str | None = None
+    google_translate_url: str = "https://translation.googleapis.com/language/translate/v2"
+
+    @field_validator("database_url")
+    @classmethod
+    def _psycopg_driver(cls, v: str) -> str:
+        # Hosts such as Render give "postgres://" or "postgresql://" URLs, which SQLAlchemy
+        # maps to psycopg2. This project ships psycopg 3, so point those URLs at it.
+        for prefix in ("postgres://", "postgresql://"):
+            if v.startswith(prefix):
+                return "postgresql+psycopg://" + v[len(prefix):]
+        return v
+
     @field_validator("secret_key")
     @classmethod
     def _strong_secret(cls, v: str) -> str:

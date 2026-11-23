@@ -4,12 +4,14 @@ import { api, errorMessage } from '../lib/api';
 import { useToast } from '../lib/toast';
 import type { User } from '../lib/types';
 import { useMe } from './auth';
-import { Badge, ErrorBlock, LoadingBlock, Modal, PageTitle, Spinner, Toggle, timeAgo, useConfirm } from './components/ui';
+import { Badge, ErrorBlock, LoadingBlock, Modal, PageTitle, Spinner, Toggle, useConfirm, useDates } from './components/ui';
+import { useAT } from './i18n';
 
 function UserModal({ open, onClose, user }: { open: boolean; onClose: () => void; user: User | null }) {
   const qc = useQueryClient();
   const toast = useToast();
   const me = useMe();
+  const at = useAT();
   const [form, setForm] = useState({ username: '', full_name: '', password: '', is_active: true });
   const [error, setError] = useState<string | null>(null);
   const isSelf = user?.id === me.data?.id;
@@ -27,7 +29,7 @@ function UserModal({ open, onClose, user }: { open: boolean; onClose: () => void
         : api.post<User>('/admin/users', { username: form.username, full_name: form.full_name, password: form.password }),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ['users'] });
-      toast(user ? 'Administrator updated' : 'Administrator created');
+      toast(user ? at('Administrator updated') : at('Administrator created'));
       onClose();
     },
     onError: (e) => setError(errorMessage(e)),
@@ -40,28 +42,28 @@ function UserModal({ open, onClose, user }: { open: boolean; onClose: () => void
   };
 
   return (
-    <Modal open={open} onClose={onClose} title={user ? `Edit ${user.username}` : 'New administrator'} size="sm">
+    <Modal open={open} onClose={onClose} title={user ? at('Edit {name}', { name: user.username }) : at('New administrator')} size="sm">
       <form onSubmit={submit} className="space-y-4">
         <div>
-          <label className="label">Username</label>
+          <label className="label">{at('Username')}</label>
           <input className="input" required minLength={3} maxLength={64} pattern="[A-Za-z0-9_.\-]+" disabled={!!user} value={form.username} onChange={(e) => setForm({ ...form, username: e.target.value })} autoComplete="off" />
         </div>
         <div>
-          <label className="label">Full name</label>
+          <label className="label">{at('Full name')}</label>
           <input className="input" maxLength={120} value={form.full_name} onChange={(e) => setForm({ ...form, full_name: e.target.value })} />
         </div>
         {!isSelf && (
           <div>
-            <label className="label">{user ? 'Reset password' : 'Password'}</label>
-            <input type="password" className="input" required={!user} minLength={8} value={form.password} onChange={(e) => setForm({ ...form, password: e.target.value })} placeholder={user ? 'Leave empty to keep the current password' : 'At least 8 characters'} autoComplete="new-password" />
+            <label className="label">{user ? at('Reset password') : at('Password')}</label>
+            <input type="password" className="input" required={!user} minLength={8} value={form.password} onChange={(e) => setForm({ ...form, password: e.target.value })} placeholder={user ? at('Leave empty to keep the current password') : at('At least 8 characters.')} autoComplete="new-password" />
           </div>
         )}
-        {user && !isSelf && <Toggle checked={form.is_active} onChange={(v) => setForm({ ...form, is_active: v })} label="Account active (can sign in)" />}
-        {isSelf && <p className="text-xs text-slate-500">To change your own password, use the account menu in the top-right corner.</p>}
+        {user && !isSelf && <Toggle checked={form.is_active} onChange={(v) => setForm({ ...form, is_active: v })} label={at('Account active (can sign in)')} />}
+        {isSelf && <p className="text-xs text-slate-500">{at('To change your own password, use the account menu in the top-right corner.')}</p>}
         {error && <p className="text-sm text-rose-600 whitespace-pre-line">{error}</p>}
         <div className="flex justify-end gap-2 pt-2">
-          <button type="button" className="btn-secondary" onClick={onClose}>Cancel</button>
-          <button className="btn-primary" disabled={save.isPending}>{save.isPending && <Spinner className="w-4 h-4" />} Save</button>
+          <button type="button" className="btn-secondary" onClick={onClose}>{at('Cancel')}</button>
+          <button className="btn-primary" disabled={save.isPending}>{save.isPending && <Spinner className="w-4 h-4" />} {at('Save')}</button>
         </div>
       </form>
     </Modal>
@@ -76,12 +78,14 @@ export function UsersPage() {
   const q = useQuery({ queryKey: ['users'], queryFn: () => api.get<User[]>('/admin/users') });
   const [editing, setEditing] = useState<User | null>(null);
   const [open, setOpen] = useState(false);
+  const at = useAT();
+  const { timeAgo } = useDates();
 
   const remove = useMutation({
     mutationFn: (id: number) => api.del(`/admin/users/${id}`),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ['users'] });
-      toast('Administrator removed');
+      toast(at('Administrator removed'));
     },
     onError: (e) => toast(errorMessage(e), 'error'),
   });
@@ -89,9 +93,9 @@ export function UsersPage() {
   return (
     <>
       <PageTitle
-        title="Administrators"
-        subtitle="People who can sign in and manage the website."
-        actions={<button className="btn-primary" onClick={() => { setEditing(null); setOpen(true); }}><i className="fa-solid fa-user-plus" /> Add administrator</button>}
+        title={at('Administrators')}
+        subtitle={at('People who can sign in and manage the website.')}
+        actions={<button className="btn-primary" onClick={() => { setEditing(null); setOpen(true); }}><i className="fa-solid fa-user-plus" /> {at('Add administrator')}</button>}
       />
       {q.isPending ? (
         <LoadingBlock />
@@ -108,18 +112,18 @@ export function UsersPage() {
                 <div className="flex items-center gap-2 flex-wrap">
                   <span className="font-semibold text-slate-900">{u.full_name || u.username}</span>
                   <span className="text-sm text-slate-400">@{u.username}</span>
-                  {u.id === me.data?.id && <Badge tone="green">You</Badge>}
-                  {!u.is_active && <Badge tone="rose">Disabled</Badge>}
+                  {u.id === me.data?.id && <Badge tone="green">{at('You')}</Badge>}
+                  {!u.is_active && <Badge tone="rose">{at('Disabled')}</Badge>}
                 </div>
-                <div className="text-xs text-slate-400">Last sign-in {timeAgo(u.last_login_at)}</div>
+                <div className="text-xs text-slate-400">{at('Last sign-in {when}', { when: timeAgo(u.last_login_at) })}</div>
               </div>
-              <button className="icon-btn" aria-label="Edit" onClick={() => { setEditing(u); setOpen(true); }}><i className="fa-solid fa-pen" /></button>
+              <button className="icon-btn" aria-label={at('Edit')} onClick={() => { setEditing(u); setOpen(true); }}><i className="fa-solid fa-pen" /></button>
               <button
                 className="icon-btn hover:!text-rose-600"
-                aria-label="Delete"
+                aria-label={at('Delete')}
                 disabled={u.id === me.data?.id}
                 onClick={async () => {
-                  if (await confirm({ title: `Remove ${u.username}?`, message: 'They will no longer be able to sign in.', confirmLabel: 'Remove', danger: true })) remove.mutate(u.id);
+                  if (await confirm({ title: at('Remove {name}?', { name: u.username }), message: at('They will no longer be able to sign in.'), confirmLabel: at('Remove'), danger: true })) remove.mutate(u.id);
                 }}
               >
                 <i className="fa-solid fa-trash" />

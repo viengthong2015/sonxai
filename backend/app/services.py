@@ -16,6 +16,13 @@ from .models import Block, Menu, Publication, SiteSetting
 SNAPSHOT_VERSION = 1
 
 DEFAULT_SETTINGS: dict[str, Any] = {
+    # Website languages. English is the source language and the fallback for missing text.
+    "languages": [
+        {"code": "en", "name": "English", "short": "EN", "enabled": True},
+        {"code": "lo", "name": "ພາສາລາວ", "short": "ລາວ", "enabled": True},
+    ],
+    # Translations of the fixed interface text, per language: {"th": {"submit": "..."}}
+    "ui_strings": {},
     "site_name": {"en": "Sonxai", "lo": "ສອນໄຊ"},
     "site_tagline": {"en": "Primary School", "lo": "ໂຮງຮຽນປະຖົມ"},
     "logo_icon": "fa-solid fa-graduation-cap",

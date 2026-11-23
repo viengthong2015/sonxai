@@ -77,11 +77,32 @@ The admin username and password are `INITIAL_ADMIN_USERNAME` / `INITIAL_ADMIN_PA
 | **Site settings** | School name and logo, Dashboard button, footer text, contact details, social links, application form grades. |
 | **Publish** | Your edits are saved as a **draft**. Visitors only see them after you click **Publish**. The publish dialog lists what changed. **Preview draft** shows the unpublished site. |
 | **Publish & history** | Every publish is kept as a version. **Restore** loads an old version into the draft; publish it to roll back the live site. |
+| **Languages** | Add **any** language by typing its code and name (e.g. Hmong `hmn`, White Hmong `mww`, Khmer `km`), show or hide it on the website, and order the language switch. **Translation progress** lists what still needs translating per language, with **Translate** buttons and **Auto-translate everything missing**. **Labels and messages** translates the fixed **website text** (form labels, buttons) and the **admin panel text** itself. English is the source: anything not translated shows in English. |
 | **Applications** | Admission requests from the "Apply now" pop-up and the Application form block. Set a status and keep internal notes. |
 | **Administrators** | Add or disable admin accounts and reset their passwords. |
 
 Images are uploaded from any image field (Upload / Library). Allowed formats are PNG, JPEG,
 GIF and WebP, up to 5 MB.
+
+## Languages and translation
+
+- **Website content** (pages, menus, settings): edit any page and pick a language in the editor's language switch.
+  Each field shows the English text above it with **Copy English** and **Auto-translate**. Website changes appear after **Publish**.
+- **Admin panel**: every staff member picks their admin language in the top bar (or on the login page).
+  Translate the admin wording under **Languages → Labels and messages → Admin panel text**. These translations apply
+  immediately (no publishing), because only staff see them. Keep `{placeholders}` such as `{name}` unchanged.
+- **Auto-translate (optional)** uses Google Cloud Translation. Without a key the buttons are hidden and you translate by hand.
+  To turn it on:
+  1. In Google Cloud Console create a project, enable **Cloud Translation API**, and create an **API key**
+     (restrict it to the Cloud Translation API). Google requires a billing account; check its current free allowance.
+  2. Put the key in `backend/.env`: `GOOGLE_TRANSLATE_API_KEY=your-key` and restart the backend.
+  3. If Google uses a different code than yours (e.g. White Hmong `mww` → Google `hmn`), set the language's
+     **Auto-translate code** on the Languages screen.
+
+  Auto-translate only fills **empty** translations; it never overwrites text a person wrote. Always review machine
+  translations before publishing. The key stays on the server and is never sent to browsers.
+- **For developers**: admin wording is written in English inside `at('…')` / `msg('…')`. After changing admin text run
+  `npm run i18n:extract` (also part of `npm run build`) to refresh `src/admin/catalog.ts`.
 
 ## Security
 
@@ -112,6 +133,30 @@ uvicorn app.main:app --host 0.0.0.0 --port 8000 --workers 1
 FastAPI serves the built React app from `frontend/dist`, so a single process runs the whole
 site. Put it behind HTTPS (for example nginx or Caddy). The login and form rate limiters are
 in memory, so if you run several workers, use a shared limiter (Redis or the reverse proxy).
+
+### Deploy to Render
+
+[`render.yaml`](render.yaml) describes the whole setup. For a new deploy, open the Render
+dashboard → **New → Blueprint**, pick this repository and enter `INITIAL_ADMIN_PASSWORD` when asked.
+Render creates the database and generates `SECRET_KEY`.
+
+For a web service created by hand, set these under **Settings** (Root Directory empty):
+
+| Field | Value |
+|---|---|
+| Build Command | `cd frontend && npm ci && npm run build && cd ../backend && pip install -r requirements.txt` |
+| Start Command | `cd backend && python -m app.seed && python -m uvicorn app.main:app --host 0.0.0.0 --port $PORT --proxy-headers --forwarded-allow-ips="*"` |
+| Health Check Path | `/api/health` |
+
+and these under **Environment**: `DATABASE_URL` (the Render PostgreSQL **Internal Database URL**,
+used as-is), `SECRET_KEY` (32+ random characters), `ENVIRONMENT=production`, `COOKIE_SECURE=true`,
+`INITIAL_ADMIN_USERNAME`, `INITIAL_ADMIN_PASSWORD`, `PYTHON_VERSION=3.11.9`.
+
+Do not use the development command (`--reload --port 8000`) on Render: it listens only on
+`127.0.0.1`, so Render finds no open port and the deploy times out.
+
+Uploaded images live in `backend/uploads/`, which Render wipes on every deploy unless you attach
+a Persistent Disk mounted at `/opt/render/project/src/backend/uploads` (paid plans).
 
 Useful commands:
 

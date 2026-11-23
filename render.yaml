@@ -1,0 +1,40 @@
+# Render Blueprint: one web service (FastAPI + built React app) and one PostgreSQL database.
+# Use it from the Render dashboard: New → Blueprint → pick this repository.
+services:
+  - type: web
+    name: sx_service
+    runtime: python
+    plan: free
+    buildCommand: >-
+      cd frontend && npm ci && npm run build &&
+      cd ../backend && pip install -r requirements.txt
+    startCommand: >-
+      cd backend && python -m app.seed &&
+      python -m uvicorn app.main:app --host 0.0.0.0 --port $PORT --proxy-headers --forwarded-allow-ips="*"
+    healthCheckPath: /api/health
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.11.9
+      - key: NODE_VERSION
+        value: 20.18.0
+      - key: ENVIRONMENT
+        value: production
+      - key: COOKIE_SECURE
+        value: "true"
+      - key: SECRET_KEY
+        generateValue: true
+      - key: DATABASE_URL
+        fromDatabase:
+          name: sonxai-db
+          property: connectionString
+      - key: INITIAL_ADMIN_USERNAME
+        value: admin
+      - key: INITIAL_ADMIN_PASSWORD
+        sync: false # Render asks for it when the Blueprint is created
+      - key: GOOGLE_TRANSLATE_API_KEY
+        sync: false # optional, leave empty to turn auto-translate off
+
+databases:
+  - name: sonxai-db
+    databaseName: sonxai1
+    plan: free

@@ -72,14 +72,14 @@ def _validate_slug(db: Session, slug: str, exclude_id: int | None = None) -> Non
 
 def _apply_menu(menu: Menu, payload: MenuIn) -> None:
     menu.slug = payload.slug
-    menu.label = payload.label.model_dump()
+    menu.label = payload.label
     menu.menu_type = payload.menu_type
     menu.url = payload.url
     menu.open_in_new_tab = payload.open_in_new_tab
     menu.is_home = payload.is_home
     menu.is_visible = payload.is_visible
     menu.show_in_nav = payload.show_in_nav
-    menu.meta_description = payload.meta_description.model_dump()
+    menu.meta_description = payload.meta_description
 
 
 def _clear_other_homes(db: Session, keep_id: int) -> None:

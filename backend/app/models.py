@@ -117,6 +117,19 @@ class Application(TimestampMixin, Base):
     admin_notes: Mapped[str] = mapped_column(Text, default="", nullable=False)
 
 
+class AdminTranslation(Base):
+    """Translations of the admin panel's own wording, per language: {"Publish": "..."}.
+    Only staff see these, so they take effect on save (no publishing step)."""
+
+    __tablename__ = "admin_translations"
+
+    lang: Mapped[str] = mapped_column(String(20), primary_key=True)
+    strings: Mapped[dict[str, Any]] = mapped_column(JSONB, default=dict, nullable=False)
+    updated_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), server_default=func.now(), onupdate=func.now(), nullable=False
+    )
+
+
 class Media(Base):
     __tablename__ = "media"
 

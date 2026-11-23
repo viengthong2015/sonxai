@@ -6,27 +6,30 @@ import { useToast } from '../lib/toast';
 import type { User } from '../lib/types';
 import { useMe } from './auth';
 import { ConfirmProvider, Modal, Spinner } from './components/ui';
+import { AdminLangPicker, msg, useAT } from './i18n';
 import { PublishButton } from './publish';
 
 const NAV = [
-  { to: '/admin', label: 'Dashboard', icon: 'fa-solid fa-gauge', end: true },
-  { to: '/admin/menus', label: 'Menus & Pages', icon: 'fa-solid fa-bars-staggered' },
-  { to: '/admin/applications', label: 'Applications', icon: 'fa-solid fa-inbox' },
-  { to: '/admin/settings', label: 'Site settings', icon: 'fa-solid fa-sliders' },
-  { to: '/admin/publish', label: 'Publish & history', icon: 'fa-solid fa-clock-rotate-left' },
-  { to: '/admin/users', label: 'Administrators', icon: 'fa-solid fa-user-shield' },
+  { to: '/admin', label: msg('Dashboard'), icon: 'fa-solid fa-gauge', end: true },
+  { to: '/admin/menus', label: msg('Menus & Pages'), icon: 'fa-solid fa-bars-staggered' },
+  { to: '/admin/applications', label: msg('Applications'), icon: 'fa-solid fa-inbox' },
+  { to: '/admin/settings', label: msg('Site settings'), icon: 'fa-solid fa-sliders' },
+  { to: '/admin/languages', label: msg('Languages'), icon: 'fa-solid fa-language' },
+  { to: '/admin/publish', label: msg('Publish & history'), icon: 'fa-solid fa-clock-rotate-left' },
+  { to: '/admin/users', label: msg('Administrators'), icon: 'fa-solid fa-user-shield' },
 ];
 
 function ChangePasswordModal({ open, onClose }: { open: boolean; onClose: () => void }) {
   const toast = useToast();
   const qc = useQueryClient();
+  const at = useAT();
   const [form, setForm] = useState({ current_password: '', new_password: '', confirm: '' });
   const [error, setError] = useState<string | null>(null);
   const m = useMutation({
     mutationFn: () => api.post<User>('/auth/change-password', { current_password: form.current_password, new_password: form.new_password }),
     onSuccess: (u) => {
       qc.setQueryData(['me'], u);
-      toast('Password changed. Other sessions were signed out.');
+      toast(at('Password changed. Other sessions were signed out.'));
       setForm({ current_password: '', new_password: '', confirm: '' });
       onClose();
     },
@@ -35,29 +38,29 @@ function ChangePasswordModal({ open, onClose }: { open: boolean; onClose: () => 
   const submit = (e: FormEvent) => {
     e.preventDefault();
     setError(null);
-    if (form.new_password !== form.confirm) return setError('The new passwords do not match.');
+    if (form.new_password !== form.confirm) return setError(at('The new passwords do not match.'));
     m.mutate();
   };
   return (
-    <Modal open={open} onClose={onClose} title="Change password" size="sm">
+    <Modal open={open} onClose={onClose} title={at('Change password')} size="sm">
       <form onSubmit={submit} className="space-y-4">
         <div>
-          <label className="label">Current password</label>
+          <label className="label">{at('Current password')}</label>
           <input type="password" className="input" required autoComplete="current-password" value={form.current_password} onChange={(e) => setForm({ ...form, current_password: e.target.value })} />
         </div>
         <div>
-          <label className="label">New password</label>
+          <label className="label">{at('New password')}</label>
           <input type="password" className="input" required minLength={8} autoComplete="new-password" value={form.new_password} onChange={(e) => setForm({ ...form, new_password: e.target.value })} />
-          <p className="text-xs text-slate-400 mt-1">At least 8 characters.</p>
+          <p className="text-xs text-slate-400 mt-1">{at('At least 8 characters.')}</p>
         </div>
         <div>
-          <label className="label">Confirm new password</label>
+          <label className="label">{at('Confirm new password')}</label>
           <input type="password" className="input" required autoComplete="new-password" value={form.confirm} onChange={(e) => setForm({ ...form, confirm: e.target.value })} />
         </div>
         {error && <p className="text-sm text-rose-600 whitespace-pre-line">{error}</p>}
         <div className="flex justify-end gap-2 pt-2">
-          <button type="button" className="btn-secondary" onClick={onClose}>Cancel</button>
-          <button className="btn-primary" disabled={m.isPending}>{m.isPending && <Spinner className="w-4 h-4" />} Save password</button>
+          <button type="button" className="btn-secondary" onClick={onClose}>{at('Cancel')}</button>
+          <button className="btn-primary" disabled={m.isPending}>{m.isPending && <Spinner className="w-4 h-4" />} {at('Save password')}</button>
         </div>
       </form>
     </Modal>
@@ -70,6 +73,7 @@ function UserMenu({ user }: { user: User }) {
   const ref = useRef<HTMLDivElement>(null);
   const qc = useQueryClient();
   const navigate = useNavigate();
+  const at = useAT();
 
   useEffect(() => {
     if (!open) return;
@@ -103,10 +107,10 @@ function UserMenu({ user }: { user: User }) {
             <div className="text-xs text-slate-400">@{user.username}</div>
           </div>
           <button role="menuitem" onClick={() => { setOpen(false); setPwOpen(true); }} className="w-full text-left px-4 py-2 text-sm text-slate-700 hover:bg-brand-50 flex items-center gap-2.5">
-            <i className="fa-solid fa-key w-4 text-slate-400" /> Change password
+            <i className="fa-solid fa-key w-4 text-slate-400" /> {at('Change password')}
           </button>
           <button role="menuitem" onClick={logout} className="w-full text-left px-4 py-2 text-sm text-rose-600 hover:bg-rose-50 flex items-center gap-2.5">
-            <i className="fa-solid fa-arrow-right-from-bracket w-4" /> Sign out
+            <i className="fa-solid fa-arrow-right-from-bracket w-4" /> {at('Sign out')}
           </button>
         </div>
       )}
@@ -119,6 +123,7 @@ export function AdminLayout() {
   const me = useMe();
   const [sideOpen, setSideOpen] = useState(false);
   const location = useLocation();
+  const at = useAT();
 
   useEffect(() => setSideOpen(false), [location.pathname]);
   useEffect(() => {
@@ -138,7 +143,7 @@ export function AdminLayout() {
             <img src="/logo.png" alt="" className="w-10 h-10 object-contain" />
             <div className="leading-tight">
               <div className="font-extrabold text-white">Sonxai</div>
-              <div className="text-xs text-lapis-200 font-medium">Website editor</div>
+              <div className="text-xs text-lapis-200 font-medium">{at('Website editor')}</div>
             </div>
           </div>
           <nav className="flex-1 p-3 space-y-1 overflow-y-auto">
@@ -151,16 +156,16 @@ export function AdminLayout() {
                   `flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-medium transition ${isActive ? 'bg-white/10 text-white' : 'text-lapis-100/75 hover:text-white hover:bg-white/5'}`
                 }
               >
-                <i className={`${n.icon} w-5 text-center`} /> {n.label}
+                <i className={`${n.icon} w-5 text-center`} /> {at(n.label)}
               </NavLink>
             ))}
           </nav>
           <div className="p-3 border-t border-white/10 space-y-1">
             <a href="/" target="_blank" rel="noopener" className="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm text-lapis-100/75 hover:text-white hover:bg-white/5">
-              <i className="fa-solid fa-globe w-5 text-center" /> View live site
+              <i className="fa-solid fa-globe w-5 text-center" /> {at('View live site')}
             </a>
             <a href="/admin/preview" target="_blank" rel="noopener" className="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm text-lapis-100/75 hover:text-white hover:bg-white/5">
-              <i className="fa-solid fa-eye w-5 text-center" /> Preview draft
+              <i className="fa-solid fa-eye w-5 text-center" /> {at('Preview draft')}
             </a>
           </div>
         </aside>
@@ -168,11 +173,12 @@ export function AdminLayout() {
 
         {/* Top bar */}
         <header className="sticky top-0 z-20 h-16 glass-nav border-b border-slate-200/80 flex items-center gap-3 px-4 sm:px-6">
-          <button className="lg:hidden icon-btn" onClick={() => setSideOpen(true)} aria-label="Open menu">
+          <button className="lg:hidden icon-btn" onClick={() => setSideOpen(true)} aria-label={at('Open menu')}>
             <i className="fa-solid fa-bars" />
           </button>
           <Link to="/admin" className="lg:hidden font-extrabold text-slate-900">Sonxai CMS</Link>
           <div className="flex-1" />
+          <AdminLangPicker className="hidden sm:inline-flex" />
           <PublishButton />
           <UserMenu user={me.data} />
         </header>

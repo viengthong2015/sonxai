@@ -14,26 +14,33 @@ export class ApiError extends Error {
 }
 
 let onUnauthorized: (() => void) | null = null;
+let translateMessage: ((s: string) => string) | null = null;
+
+/** The admin panel installs this so server messages appear in the staff member's language. */
+export function setMessageTranslator(fn: ((s: string) => string) | null) {
+  translateMessage = fn;
+}
 export function setUnauthorizedHandler(fn: (() => void) | null) {
   onUnauthorized = fn;
 }
 
 function messageFrom(data: unknown, status: number): string {
+  const tr = (s: string) => (translateMessage ? translateMessage(s) : s);
   if (data && typeof data === 'object' && 'detail' in data) {
     const detail = (data as { detail: unknown }).detail;
-    if (typeof detail === 'string') return detail;
+    if (typeof detail === 'string') return tr(detail);
     if (Array.isArray(detail)) {
       return detail
         .map((d) => {
           const loc = Array.isArray(d?.loc) ? d.loc.filter((p: unknown) => p !== 'body').join('.') : '';
-          const msg = String(d?.msg ?? 'Invalid value').replace(/^Value error, /, '');
+          const msg = tr(String(d?.msg ?? 'Invalid value').replace(/^Value error, /, ''));
           return loc ? `${loc}: ${msg}` : msg;
         })
         .join('\n');
     }
   }
-  if (status === 0) return 'Cannot reach the server. Please check your connection.';
-  return `Request failed (${status}).`;
+  if (status === 0) return tr('Cannot reach the server. Please check your connection.');
+  return tr('Request failed ({status}).').replace('{status}', String(status));
 }
 
 async function request<T>(method: string, path: string, body?: unknown): Promise<T> {

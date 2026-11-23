@@ -4,6 +4,7 @@ import { api, errorMessage } from '../../lib/api';
 import { useToast } from '../../lib/toast';
 import type { MediaItem } from '../../lib/types';
 import { isSafeUrl } from '../../lib/url';
+import { useAT } from '../i18n';
 import { LoadingBlock, Modal, Spinner, useConfirm } from './ui';
 
 const ACCEPT = 'image/png,image/jpeg,image/gif,image/webp';
@@ -26,6 +27,7 @@ function MediaLibrary({ open, onClose, onSelect }: { open: boolean; onClose: () 
   const qc = useQueryClient();
   const toast = useToast();
   const confirm = useConfirm();
+  const at = useAT();
   const upload = useUpload();
   const fileRef = useRef<HTMLInputElement>(null);
   const q = useQuery({ queryKey: ['media'], queryFn: () => api.get<MediaItem[]>('/admin/media'), enabled: open });
@@ -34,7 +36,7 @@ function MediaLibrary({ open, onClose, onSelect }: { open: boolean; onClose: () 
     mutationFn: (id: number) => api.del(`/admin/media/${id}`),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ['media'] });
-      toast('Image deleted');
+      toast(at('Image deleted'));
     },
     onError: (e) => toast(errorMessage(e), 'error'),
   });
@@ -43,13 +45,13 @@ function MediaLibrary({ open, onClose, onSelect }: { open: boolean; onClose: () 
     <Modal
       open={open}
       onClose={onClose}
-      title="Media library"
+      title={at('Media library')}
       size="xl"
       footer={
         <>
           <input ref={fileRef} type="file" accept={ACCEPT} className="hidden" onChange={(e) => e.target.files?.[0] && upload.mutate(e.target.files[0])} />
           <button className="btn-primary" onClick={() => fileRef.current?.click()} disabled={upload.isPending}>
-            {upload.isPending ? <Spinner className="w-4 h-4" /> : <i className="fa-solid fa-upload" />} Upload image
+            {upload.isPending ? <Spinner className="w-4 h-4" /> : <i className="fa-solid fa-upload" />} {at('Upload image')}
           </button>
         </>
       }
@@ -57,7 +59,7 @@ function MediaLibrary({ open, onClose, onSelect }: { open: boolean; onClose: () 
       {q.isPending ? (
         <LoadingBlock />
       ) : !q.data?.length ? (
-        <p className="text-sm text-slate-500 text-center py-10">No images yet. Upload PNG, JPEG, GIF or WebP files.</p>
+        <p className="text-sm text-slate-500 text-center py-10">{at('No images yet. Upload PNG, JPEG, GIF or WebP files.')}</p>
       ) : (
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
           {q.data.map((m) => (
@@ -66,13 +68,13 @@ function MediaLibrary({ open, onClose, onSelect }: { open: boolean; onClose: () 
                 <img src={m.url} alt={m.original_name} loading="lazy" className="w-full h-full object-cover group-hover:scale-105 transition-transform" />
               </button>
               <div className="px-2 py-1.5 text-[11px] text-slate-500 truncate bg-white border-t border-slate-100" title={m.original_name}>
-                {m.original_name || 'image'} · {Math.round(m.size / 1024)} KB
+                {m.original_name || at('image')} · {Math.round(m.size / 1024)} KB
               </div>
               <button
                 type="button"
-                aria-label="Delete image"
+                aria-label={at('Delete image')}
                 onClick={async () => {
-                  if (await confirm({ title: 'Delete image?', message: 'Pages that use this image will show a broken image.', confirmLabel: 'Delete', danger: true }))
+                  if (await confirm({ title: at('Delete image?'), message: at('Pages that use this image will show a broken image.'), confirmLabel: at('Delete'), danger: true }))
                     remove.mutate(m.id);
                 }}
                 className="absolute top-2 right-2 w-7 h-7 rounded-lg bg-white/90 text-rose-600 opacity-0 group-hover:opacity-100 focus:opacity-100 transition shadow"
@@ -91,6 +93,7 @@ export function ImageField({ value, onChange }: { value: string; onChange: (url:
   const [libOpen, setLibOpen] = useState(false);
   const upload = useUpload();
   const fileRef = useRef<HTMLInputElement>(null);
+  const at = useAT();
 
   return (
     <div className="flex flex-col sm:flex-row gap-3">
@@ -112,14 +115,14 @@ export function ImageField({ value, onChange }: { value: string; onChange: (url:
             }}
           />
           <button type="button" className="btn-secondary !py-1.5 !text-xs" onClick={() => fileRef.current?.click()} disabled={upload.isPending}>
-            {upload.isPending ? <Spinner className="w-3 h-3" /> : <i className="fa-solid fa-upload" />} Upload
+            {upload.isPending ? <Spinner className="w-3 h-3" /> : <i className="fa-solid fa-upload" />} {at('Upload')}
           </button>
           <button type="button" className="btn-secondary !py-1.5 !text-xs" onClick={() => setLibOpen(true)}>
-            <i className="fa-regular fa-images" /> Library
+            <i className="fa-regular fa-images" /> {at('Library')}
           </button>
           {value && (
             <button type="button" className="btn-ghost !py-1.5 !text-xs text-rose-600" onClick={() => onChange('')}>
-              <i className="fa-solid fa-xmark" /> Remove
+              <i className="fa-solid fa-xmark" /> {at('Remove')}
             </button>
           )}
         </div>

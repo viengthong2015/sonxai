@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState, type KeyboardEvent as ReactKeyboardEvent } from 'react';
 import { Link, NavLink, useLocation } from 'react-router-dom';
 import { useLang } from '../lib/i18n';
 import type { Lang, NavItem } from '../lib/types';
@@ -27,30 +27,105 @@ export function Logo({ onDark = false }: { onDark?: boolean }) {
   );
 }
 
-/** Two-option switch: both languages always visible, the active one filled. */
+/**
+ * Language dropdown built from the languages the administrator enabled.
+ * The button shows the current language; the list shows every language in its own name.
+ * Keyboard: Enter/Space/↓ opens, ↑/↓ move, Enter selects, Escape closes.
+ */
 function LangSwitch({ className = '' }: { className?: string }) {
-  const { lang, setLang } = useLang();
-  const opts: { code: Lang; label: string; full: string }[] = [
-    { code: 'en', label: 'EN', full: 'English' },
-    { code: 'lo', label: 'ລາວ', full: 'ພາສາລາວ' },
-  ];
+  const { lang, setLang, languages } = useLang();
+  const [open, setOpen] = useState(false);
+  const [active, setActive] = useState(0);
+  const ref = useRef<HTMLDivElement>(null);
+  const buttonRef = useRef<HTMLButtonElement>(null);
+  const listRef = useRef<HTMLUListElement>(null);
+  const current = languages.find((l) => l.code === lang) ?? languages[0];
+
+  useEffect(() => {
+    if (!open) return;
+    setActive(Math.max(0, languages.findIndex((l) => l.code === lang)));
+    listRef.current?.focus();
+    const onDoc = (e: MouseEvent) => ref.current && !ref.current.contains(e.target as Node) && setOpen(false);
+    document.addEventListener('mousedown', onDoc);
+    return () => document.removeEventListener('mousedown', onDoc);
+  }, [open, languages, lang]);
+
+  if (languages.length < 2 || !current) return null;
+
+  const choose = (code: Lang) => {
+    setLang(code);
+    setOpen(false);
+    buttonRef.current?.focus();
+  };
+
+  const onListKey = (e: ReactKeyboardEvent) => {
+    if (e.key === 'ArrowDown') setActive((i) => Math.min(languages.length - 1, i + 1));
+    else if (e.key === 'ArrowUp') setActive((i) => Math.max(0, i - 1));
+    else if (e.key === 'Home') setActive(0);
+    else if (e.key === 'End') setActive(languages.length - 1);
+    else if (e.key === 'Enter' || e.key === ' ') choose(languages[active].code);
+    else if (e.key === 'Escape' || e.key === 'Tab') {
+      setOpen(false);
+      if (e.key === 'Escape') buttonRef.current?.focus();
+      return;
+    } else return;
+    e.preventDefault();
+  };
+
   return (
-    <div className={`inline-flex rounded-full border-2 border-rule p-0.5 ${className}`} role="group" aria-label="Language">
-      {opts.map((o) => (
-        <button
-          key={o.code}
-          type="button"
-          lang={o.code}
-          aria-pressed={lang === o.code}
-          title={o.full}
-          onClick={() => setLang(o.code)}
-          className={`min-w-[3rem] px-3 py-1 rounded-full text-[15px] font-bold transition-colors ${
-            lang === o.code ? 'bg-lapis-700 text-white' : 'text-ink-soft hover:text-lapis-700'
-          }`}
+    <div ref={ref} className={`relative ${className}`}>
+      <button
+        ref={buttonRef}
+        type="button"
+        aria-haspopup="listbox"
+        aria-expanded={open}
+        aria-label={`Language: ${current.name}`}
+        onClick={() => setOpen((o) => !o)}
+        onKeyDown={(e) => {
+          if (e.key === 'ArrowDown') {
+            e.preventDefault();
+            setOpen(true);
+          }
+        }}
+        className="flex items-center gap-2 rounded-full border-2 border-rule bg-white pl-3 pr-3.5 py-1.5 text-[15px] font-bold text-ink hover:border-lapis-300 transition-colors"
+      >
+        <i className="fa-solid fa-globe text-lapis-700" aria-hidden="true" />
+        <span lang={current.code}>{current.short || current.code.toUpperCase()}</span>
+        <i className={`fa-solid fa-chevron-down text-[10px] text-ink-muted transition-transform ${open ? 'rotate-180' : ''}`} aria-hidden="true" />
+      </button>
+
+      {open && (
+        <ul
+          ref={listRef}
+          role="listbox"
+          tabIndex={-1}
+          aria-label="Language"
+          aria-activedescendant={`lang-opt-${languages[active]?.code}`}
+          onKeyDown={onListKey}
+          className="absolute right-0 mt-2 min-w-[12rem] max-h-[60vh] overflow-y-auto rounded-xl border border-rule bg-white py-1.5 shadow-xl z-50 focus:outline-none"
         >
-          {o.label}
-        </button>
-      ))}
+          {languages.map((l, i) => {
+            const selected = l.code === lang;
+            return (
+              <li
+                key={l.code}
+                id={`lang-opt-${l.code}`}
+                role="option"
+                aria-selected={selected}
+                lang={l.code}
+                onMouseEnter={() => setActive(i)}
+                onClick={() => choose(l.code)}
+                className={`flex items-center justify-between gap-4 px-4 py-2.5 cursor-pointer text-[15px] ${
+                  i === active ? 'bg-mist' : ''
+                } ${selected ? 'font-bold text-lapis-700' : 'text-ink'}`}
+              >
+                <span>{l.name}</span>
+                {selected && <i className="fa-solid fa-check text-xs text-marigold-600" aria-hidden="true" />}
+              </li>
+            );
+          })}
+        </ul>
+      )}
     </div>
   );
 }

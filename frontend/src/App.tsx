@@ -1,6 +1,7 @@
 import { lazy, Suspense, type ComponentType } from 'react';
 import { Navigate, Route, Routes } from 'react-router-dom';
 import { RequireAuth, SessionWatcher } from './admin/auth';
+import { AdminI18nOutlet } from './admin/i18n';
 import { NotFound, PageView } from './public/PageView';
 import { FullPageSpinner, PublicLayout } from './public/PublicLayout';
 
@@ -18,6 +19,7 @@ const ApplicationsPage = lazyNamed(() => import('./admin/ApplicationsPage'), 'Ap
 const SettingsPage = lazyNamed(() => import('./admin/SettingsPage'), 'SettingsPage');
 const PublishPage = lazyNamed(() => import('./admin/PublishPage'), 'PublishPage');
 const UsersPage = lazyNamed(() => import('./admin/UsersPage'), 'UsersPage');
+const LanguagesPage = lazyNamed(() => import('./admin/LanguagesPage'), 'LanguagesPage');
 
 export default function App() {
   return (
@@ -25,36 +27,39 @@ export default function App() {
       <SessionWatcher />
       <Suspense fallback={<FullPageSpinner />}>
         <Routes>
-          {/* Admin */}
-          <Route path="/admin/login" element={<LoginPage />} />
-          <Route
-            path="/admin/preview"
-            element={
-              <RequireAuth>
-                <PublicLayout mode="preview" />
-              </RequireAuth>
-            }
-          >
-            <Route index element={<PageView />} />
-            <Route path=":slug" element={<PageView />} />
-            <Route path="*" element={<NotFound />} />
-          </Route>
-          <Route
-            path="/admin"
-            element={
-              <RequireAuth>
-                <AdminLayout />
-              </RequireAuth>
-            }
-          >
-            <Route index element={<DashboardPage />} />
-            <Route path="menus" element={<MenusPage />} />
-            <Route path="menus/:id" element={<PageEditor />} />
-            <Route path="applications" element={<ApplicationsPage />} />
-            <Route path="settings" element={<SettingsPage />} />
-            <Route path="publish" element={<PublishPage />} />
-            <Route path="users" element={<UsersPage />} />
-            <Route path="*" element={<Navigate to="/admin" replace />} />
+          {/* Admin (with the staff member's admin-panel language) */}
+          <Route element={<AdminI18nOutlet />}>
+            <Route path="/admin/login" element={<LoginPage />} />
+            <Route
+              path="/admin/preview"
+              element={
+                <RequireAuth>
+                  <PublicLayout mode="preview" />
+                </RequireAuth>
+              }
+            >
+              <Route index element={<PageView />} />
+              <Route path=":slug" element={<PageView />} />
+              <Route path="*" element={<NotFound />} />
+            </Route>
+            <Route
+              path="/admin"
+              element={
+                <RequireAuth>
+                  <AdminLayout />
+                </RequireAuth>
+              }
+            >
+              <Route index element={<DashboardPage />} />
+              <Route path="menus" element={<MenusPage />} />
+              <Route path="menus/:id" element={<PageEditor />} />
+              <Route path="applications" element={<ApplicationsPage />} />
+              <Route path="settings" element={<SettingsPage />} />
+              <Route path="languages" element={<LanguagesPage />} />
+              <Route path="publish" element={<PublishPage />} />
+              <Route path="users" element={<UsersPage />} />
+              <Route path="*" element={<Navigate to="/admin" replace />} />
+            </Route>
           </Route>
 
           {/* Public website (published content only) */}

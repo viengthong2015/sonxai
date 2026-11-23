@@ -1,9 +1,14 @@
+import re
 from datetime import datetime
-from typing import Any, Literal
+from typing import Annotated, Any, Literal
 
-from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
+from pydantic import AfterValidator, BaseModel, ConfigDict, Field, field_validator, model_validator
 
 from .sanitize import ContentError, safe_url
+
+# Language codes such as "en", "lo", "th", "zh", "pt-br" (lowercase BCP 47-style).
+LANG_CODE_RE = re.compile(r"^[a-z]{2,3}(?:-[a-z0-9]{2,8})?$")
+SOURCE_LANG = "en"
 
 BLOCK_TYPES = (
     "hero",
@@ -29,14 +34,22 @@ class ORMModel(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
 
-class LocalizedText(BaseModel):
-    en: str = Field(default="", max_length=300)
-    lo: str = Field(default="", max_length=300)
+def _localized(value: dict[str, str]) -> dict[str, str]:
+    """A short text in several languages: {"en": "...", "lo": "...", "th": "..."}."""
+    if len(value) > 30:
+        raise ValueError("Too many languages.")
+    out: dict[str, str] = {}
+    for code, text in value.items():
+        if not LANG_CODE_RE.match(code):
+            raise ValueError(f"'{code}' is not a valid language code.")
+        text = text.strip()
+        if len(text) > 300:
+            raise ValueError(f"The {code} text is too long (max 300 characters).")
+        out[code] = text
+    return out
 
-    @field_validator("en", "lo")
-    @classmethod
-    def _strip(cls, v: str) -> str:
-        return v.strip()
+
+LocalizedText = Annotated[dict[str, str], AfterValidator(_localized)]
 
 
 # ---------------------------------------------------------------- auth / users
@@ -104,12 +117,12 @@ class MenuIn(BaseModel):
     is_home: bool = False
     is_visible: bool = True
     show_in_nav: bool = True
-    meta_description: LocalizedText = Field(default_factory=LocalizedText)
+    meta_description: LocalizedText = Field(default_factory=dict)
 
     @model_validator(mode="after")
     def _check(self) -> "MenuIn":
-        if not self.label.en and not self.label.lo:
-            raise ValueError("A menu label is required (English or Lao).")
+        if not any(self.label.values()):
+            raise ValueError("A menu label is required.")
         if self.menu_type == "link":
             if not self.url:
                 raise ValueError("A link menu needs a URL.")

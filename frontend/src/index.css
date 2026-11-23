@@ -19,8 +19,8 @@
     line-height: 1.25;
     text-wrap: balance;
   }
-  /* Lao stacks tone marks above and vowels below the line: give headings more room. */
-  html:lang(lo) .school :is(h1, h2, h3) {
+  /* Lao, Thai, Khmer and Burmese stack marks above and below the line: give headings more room. */
+  html:is(:lang(lo), :lang(th), :lang(km), :lang(my)) .school :is(h1, h2, h3) {
     line-height: 1.45;
   }
   :where(.school) :focus-visible {

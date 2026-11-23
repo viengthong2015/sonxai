@@ -1,5 +1,18 @@
-export type Lang = 'en' | 'lo';
+/** A language code such as "en", "lo", "th". English ("en") is the source and fallback. */
+export type Lang = string;
 export type Localized = Partial<Record<Lang, string>>;
+
+export interface Language {
+  code: string;
+  /** Name in its own language, e.g. "ພາສາລາວ" */
+  name: string;
+  /** Short label for the switch, e.g. "ລາວ" */
+  short: string;
+  /** Shown on the public website */
+  enabled: boolean;
+  /** Code the auto-translate service uses, when it differs from `code` (e.g. mww -> hmn). */
+  mt_code?: string;
+}
 
 export type BlockType =
   | 'hero'
@@ -16,6 +29,8 @@ export type BlockType =
 export type BlockData = Record<string, any>;
 
 export interface SiteSettings {
+  languages: Language[];
+  ui_strings: Record<string, Record<string, string>>;
   site_name: Localized;
   site_tagline: Localized;
   logo_icon: string;
@@ -148,6 +163,21 @@ export interface MediaItem {
   content_type: string;
   size: number;
   created_at: string;
+}
+
+export interface TranslationItem {
+  kind: 'menu' | 'settings';
+  id: number | null;
+  menu_type: 'page' | 'link' | null;
+  title: string;
+  total: number;
+  filled: Record<string, number>;
+}
+
+export interface TranslationProgress {
+  languages: string[];
+  totals: { total: number; filled: Record<string, number> };
+  items: TranslationItem[];
 }
 
 export interface DashboardData {

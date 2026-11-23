@@ -8,7 +8,7 @@ from fastapi.staticfiles import StaticFiles
 from . import models  # noqa: F401  (register tables)
 from .config import settings
 from .database import Base, engine
-from .routers import admin_content, admin_misc, auth, public
+from .routers import admin_content, admin_i18n, admin_misc, auth, public
 
 UNSAFE_METHODS = {"POST", "PUT", "PATCH", "DELETE"}
 
@@ -71,6 +71,8 @@ app.include_router(auth.router)
 app.include_router(public.router)
 app.include_router(admin_content.router)
 app.include_router(admin_misc.router)
+app.include_router(admin_i18n.public_router)
+app.include_router(admin_i18n.router)
 
 settings.upload_dir.mkdir(parents=True, exist_ok=True)
 app.mount("/uploads", StaticFiles(directory=settings.upload_dir), name="uploads")

@@ -1,9 +1,12 @@
 import { createContext, useCallback, useContext, useEffect, useRef, useState, type ReactNode } from 'react';
 import { createPortal } from 'react-dom';
 import type { Lang } from '../../lib/types';
+import { useAdminI18n, useAT } from '../i18n';
+import { useEditLanguages } from '../languages';
 
 export function Spinner({ className = 'w-5 h-5' }: { className?: string }) {
-  return <span className={`inline-block rounded-full border-2 border-current border-t-transparent animate-spin ${className}`} role="status" aria-label="Loading" />;
+  const at = useAT();
+  return <span className={`inline-block rounded-full border-2 border-current border-t-transparent animate-spin ${className}`} role="status" aria-label={at('Loading')} />;
 }
 
 export function LoadingBlock() {
@@ -15,12 +18,13 @@ export function LoadingBlock() {
 }
 
 export function ErrorBlock({ message, onRetry }: { message: string; onRetry?: () => void }) {
+  const at = useAT();
   return (
     <div className="card p-6 text-center space-y-3">
       <p className="text-rose-600 text-sm whitespace-pre-line">{message}</p>
       {onRetry && (
         <button onClick={onRetry} className="btn-secondary">
-          Try again
+          {at('Try again')}
         </button>
       )}
     </div>
@@ -98,6 +102,7 @@ export function Modal({
   size?: 'sm' | 'md' | 'lg' | 'xl';
 }) {
   const ref = useRef<HTMLDivElement>(null);
+  const at = useAT();
   useEffect(() => {
     if (!open) return;
     const onKey = (e: KeyboardEvent) => e.key === 'Escape' && onClose();
@@ -125,7 +130,7 @@ export function Modal({
       <div ref={ref} className={`bg-white rounded-3xl shadow-2xl border border-slate-100 w-full ${widths[size]} max-h-[92vh] flex flex-col`}>
         <div className="flex items-center justify-between gap-4 px-6 pt-5 pb-4 border-b border-slate-100">
           <h3 className="text-lg font-bold text-slate-900">{title}</h3>
-          <button onClick={onClose} aria-label="Close" className="w-8 h-8 rounded-full bg-slate-100 text-slate-500 hover:bg-slate-200 flex items-center justify-center shrink-0">
+          <button onClick={onClose} aria-label={at('Close')} className="w-8 h-8 rounded-full bg-slate-100 text-slate-500 hover:bg-slate-200 flex items-center justify-center shrink-0">
             <i className="fa-solid fa-xmark" />
           </button>
         </div>
@@ -148,6 +153,7 @@ const ConfirmCtx = createContext<(o: ConfirmOptions) => Promise<boolean>>(async 
 
 export function ConfirmProvider({ children }: { children: ReactNode }) {
   const [state, setState] = useState<(ConfirmOptions & { resolve: (v: boolean) => void }) | null>(null);
+  const at = useAT();
   const confirm = useCallback((o: ConfirmOptions) => new Promise<boolean>((resolve) => setState({ ...o, resolve })), []);
   const close = (v: boolean) => {
     state?.resolve(v);
@@ -164,10 +170,10 @@ export function ConfirmProvider({ children }: { children: ReactNode }) {
         footer={
           <>
             <button className="btn-secondary" onClick={() => close(false)}>
-              Cancel
+              {at('Cancel')}
             </button>
             <button className={state?.danger ? 'btn-danger' : 'btn-primary'} onClick={() => close(true)} autoFocus>
-              {state?.confirmLabel ?? 'Confirm'}
+              {state?.confirmLabel ?? at('Confirm')}
             </button>
           </>
         }
@@ -181,40 +187,66 @@ export function ConfirmProvider({ children }: { children: ReactNode }) {
 export const useConfirm = () => useContext(ConfirmCtx);
 
 /* ---------------------------------------------------------------- editing language switch */
+/** Which language the editor is writing in. Lists every language, including hidden ones. */
 export function LangSwitch({ lang, onChange }: { lang: Lang; onChange: (l: Lang) => void }) {
+  const languages = useEditLanguages();
+  const at = useAT();
+  if (languages.length > 4) {
+    return (
+      <label className="inline-flex items-center gap-2 text-xs font-bold text-slate-500">
+        {at('Editing')}
+        <select className="input !w-auto !py-1.5 !text-sm font-semibold" value={lang} onChange={(e) => onChange(e.target.value)}>
+          {languages.map((l) => (
+            <option key={l.code} value={l.code}>
+              {l.name}
+              {l.code === 'en' ? ` (${at('source')})` : l.enabled ? '' : ` (${at('hidden')})`}
+            </option>
+          ))}
+        </select>
+      </label>
+    );
+  }
   return (
-    <div className="inline-flex items-center gap-1 bg-slate-100 p-1 rounded-full border border-slate-200" role="tablist" aria-label="Editing language">
-      {(['en', 'lo'] as Lang[]).map((l) => (
+    <div className="inline-flex items-center gap-1 bg-slate-100 p-1 rounded-full border border-slate-200" role="tablist" aria-label={at('Editing language')}>
+      {languages.map((l) => (
         <button
-          key={l}
+          key={l.code}
           role="tab"
-          aria-selected={lang === l}
-          onClick={() => onChange(l)}
-          className={`px-4 py-1.5 rounded-full text-xs font-bold transition ${lang === l ? 'bg-white text-brand-700 shadow-sm' : 'text-slate-500 hover:text-slate-800'}`}
+          aria-selected={lang === l.code}
+          onClick={() => onChange(l.code)}
+          title={l.enabled ? l.name : `${l.name} (${at('not shown on the website yet')})`}
+          className={`px-4 py-1.5 rounded-full text-xs font-bold transition ${lang === l.code ? 'bg-white text-brand-700 shadow-sm' : 'text-slate-500 hover:text-slate-800'}`}
         >
-          {l === 'en' ? 'English' : 'ລາວ (Lao)'}
+          {l.name}
+          {!l.enabled && <i className="fa-regular fa-eye-slash ml-1.5 opacity-60" />}
         </button>
       ))}
     </div>
   );
 }
 
-export function formatDate(iso: string | null | undefined, withTime = true): string {
+function formatDateIn(locale: string, iso: string | null | undefined, withTime = true): string {
   if (!iso) return '—';
   const d = new Date(iso);
   return withTime
-    ? d.toLocaleString(undefined, { dateStyle: 'medium', timeStyle: 'short' })
-    : d.toLocaleDateString(undefined, { dateStyle: 'medium' });
+    ? d.toLocaleString(locale, { dateStyle: 'medium', timeStyle: 'short' })
+    : d.toLocaleDateString(locale, { dateStyle: 'medium' });
 }
 
-export function timeAgo(iso: string | null | undefined): string {
-  if (!iso) return 'never';
-  const s = Math.round((Date.now() - new Date(iso).getTime()) / 1000);
-  if (s < 60) return 'just now';
-  const m = Math.round(s / 60);
-  if (m < 60) return `${m} min ago`;
-  const h = Math.round(m / 60);
-  if (h < 24) return `${h} h ago`;
-  const d = Math.round(h / 24);
-  return d < 30 ? `${d} days ago` : formatDate(iso, false);
+/** Date helpers in the staff member's admin language. */
+export function useDates() {
+  const { at, locale } = useAdminI18n();
+  const formatDate = (iso: string | null | undefined, withTime = true) => formatDateIn(locale, iso, withTime);
+  const timeAgo = (iso: string | null | undefined): string => {
+    if (!iso) return at('never');
+    const s = Math.round((Date.now() - new Date(iso).getTime()) / 1000);
+    if (s < 60) return at('just now');
+    const m = Math.round(s / 60);
+    if (m < 60) return at('{n} min ago', { n: m });
+    const h = Math.round(m / 60);
+    if (h < 24) return at('{n} h ago', { n: h });
+    const d = Math.round(h / 24);
+    return d < 30 ? at('{n} days ago', { n: d }) : formatDate(iso, false);
+  };
+  return { formatDate, timeAgo };
 }

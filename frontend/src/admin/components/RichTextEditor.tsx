@@ -4,6 +4,7 @@ import StarterKit from '@tiptap/starter-kit';
 import { useEffect } from 'react';
 import { PROSE } from '../../public/blocks/RichText';
 import { isSafeUrl } from '../../lib/url';
+import { useAT } from '../i18n';
 
 function ToolButton({ onClick, active, icon, label, disabled }: { onClick: () => void; active?: boolean; icon: string; label: string; disabled?: boolean }) {
   return (
@@ -23,16 +24,17 @@ function ToolButton({ onClick, active, icon, label, disabled }: { onClick: () =>
 }
 
 function Toolbar({ editor }: { editor: Editor }) {
+  const at = useAT();
   const setLink = () => {
     const prev = editor.getAttributes('link').href as string | undefined;
-    const url = window.prompt('Link URL (https://…, mailto:, tel: or /page)', prev ?? 'https://');
+    const url = window.prompt(at('Link URL (https://…, mailto:, tel: or /page)'), prev ?? 'https://');
     if (url === null) return;
     if (url.trim() === '') {
       editor.chain().focus().extendMarkRange('link').unsetLink().run();
       return;
     }
     if (!isSafeUrl(url)) {
-      window.alert('That link is not allowed. Use https://…, mailto:, tel: or a site path like /about.');
+      window.alert(at('That link is not allowed. Use https://…, mailto:, tel: or a site path like /about.'));
       return;
     }
     editor.chain().focus().extendMarkRange('link').setLink({ href: url.trim() }).run();
@@ -40,28 +42,28 @@ function Toolbar({ editor }: { editor: Editor }) {
 
   return (
     <div className="flex flex-wrap items-center gap-0.5 px-2 py-1.5 border-b border-slate-200 bg-slate-50 rounded-t-xl">
-      <ToolButton icon="fa-solid fa-bold" label="Bold" active={editor.isActive('bold')} onClick={() => editor.chain().focus().toggleBold().run()} />
-      <ToolButton icon="fa-solid fa-italic" label="Italic" active={editor.isActive('italic')} onClick={() => editor.chain().focus().toggleItalic().run()} />
-      <ToolButton icon="fa-solid fa-strikethrough" label="Strikethrough" active={editor.isActive('strike')} onClick={() => editor.chain().focus().toggleStrike().run()} />
+      <ToolButton icon="fa-solid fa-bold" label={at('Bold')} active={editor.isActive('bold')} onClick={() => editor.chain().focus().toggleBold().run()} />
+      <ToolButton icon="fa-solid fa-italic" label={at('Italic')} active={editor.isActive('italic')} onClick={() => editor.chain().focus().toggleItalic().run()} />
+      <ToolButton icon="fa-solid fa-strikethrough" label={at('Strikethrough')} active={editor.isActive('strike')} onClick={() => editor.chain().focus().toggleStrike().run()} />
       <span className="w-px h-5 bg-slate-200 mx-1" />
-      <ToolButton icon="fa-solid fa-heading" label="Heading" active={editor.isActive('heading', { level: 2 })} onClick={() => editor.chain().focus().toggleHeading({ level: 2 }).run()} />
+      <ToolButton icon="fa-solid fa-heading" label={at('Heading')} active={editor.isActive('heading', { level: 2 })} onClick={() => editor.chain().focus().toggleHeading({ level: 2 }).run()} />
       <button
         type="button"
-        title="Subheading"
+        title={at('Subheading')}
         onMouseDown={(e) => e.preventDefault()}
         onClick={() => editor.chain().focus().toggleHeading({ level: 3 }).run()}
         className={`h-8 px-2 rounded-lg text-xs font-bold ${editor.isActive('heading', { level: 3 }) ? 'bg-brand-100 text-brand-800' : 'text-slate-600 hover:bg-slate-100'}`}
       >
         H3
       </button>
-      <ToolButton icon="fa-solid fa-list-ul" label="Bullet list" active={editor.isActive('bulletList')} onClick={() => editor.chain().focus().toggleBulletList().run()} />
-      <ToolButton icon="fa-solid fa-list-ol" label="Numbered list" active={editor.isActive('orderedList')} onClick={() => editor.chain().focus().toggleOrderedList().run()} />
-      <ToolButton icon="fa-solid fa-quote-left" label="Quote" active={editor.isActive('blockquote')} onClick={() => editor.chain().focus().toggleBlockquote().run()} />
-      <ToolButton icon="fa-solid fa-link" label="Link" active={editor.isActive('link')} onClick={setLink} />
-      <ToolButton icon="fa-solid fa-minus" label="Divider" onClick={() => editor.chain().focus().setHorizontalRule().run()} />
+      <ToolButton icon="fa-solid fa-list-ul" label={at('Bullet list')} active={editor.isActive('bulletList')} onClick={() => editor.chain().focus().toggleBulletList().run()} />
+      <ToolButton icon="fa-solid fa-list-ol" label={at('Numbered list')} active={editor.isActive('orderedList')} onClick={() => editor.chain().focus().toggleOrderedList().run()} />
+      <ToolButton icon="fa-solid fa-quote-left" label={at('Quote')} active={editor.isActive('blockquote')} onClick={() => editor.chain().focus().toggleBlockquote().run()} />
+      <ToolButton icon="fa-solid fa-link" label={at('Link')} active={editor.isActive('link')} onClick={setLink} />
+      <ToolButton icon="fa-solid fa-minus" label={at('Divider')} onClick={() => editor.chain().focus().setHorizontalRule().run()} />
       <span className="w-px h-5 bg-slate-200 mx-1" />
-      <ToolButton icon="fa-solid fa-rotate-left" label="Undo" disabled={!editor.can().undo()} onClick={() => editor.chain().focus().undo().run()} />
-      <ToolButton icon="fa-solid fa-rotate-right" label="Redo" disabled={!editor.can().redo()} onClick={() => editor.chain().focus().redo().run()} />
+      <ToolButton icon="fa-solid fa-rotate-left" label={at('Undo')} disabled={!editor.can().undo()} onClick={() => editor.chain().focus().undo().run()} />
+      <ToolButton icon="fa-solid fa-rotate-right" label={at('Redo')} disabled={!editor.can().redo()} onClick={() => editor.chain().focus().redo().run()} />
     </div>
   );
 }

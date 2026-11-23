@@ -22,6 +22,7 @@ from ..schemas import (
 )
 from ..security import hash_password
 from ..services import build_snapshot, diff_snapshots, effective_settings, get_settings_row, latest_publication
+from ..translations import LanguageError, normalize_languages, translation_progress
 
 router = APIRouter(prefix="/api/admin", tags=["admin: site"], dependencies=[Depends(get_current_user)])
 
@@ -57,13 +58,21 @@ def get_site_settings(db: Session = Depends(get_db)):
 @router.put("/settings")
 def update_site_settings(data: dict = Body(...), db: Session = Depends(get_db)):
     try:
-        clean = sanitize_content(data)
-    except ContentError as e:
+        clean = normalize_languages(sanitize_content(data))
+    except (ContentError, LanguageError) as e:
         raise HTTPException(status.HTTP_422_UNPROCESSABLE_ENTITY, str(e)) from e
     row = get_settings_row(db)
     row.data = clean
     db.commit()
     return effective_settings(row.data)
+
+
+@router.get("/translations/progress")
+def get_translation_progress(db: Session = Depends(get_db)):
+    """How much of the draft content is translated from English, per language and per page."""
+    snapshot = build_snapshot(db)
+    languages = effective_settings(snapshot.get("settings"))["languages"]
+    return translation_progress(snapshot, languages)
 
 
 # ---------------------------------------------------------------- applications

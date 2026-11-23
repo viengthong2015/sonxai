@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
+import { useAT } from '../i18n';
 
 const ICONS = [
   'fa-solid fa-graduation-cap', 'fa-solid fa-school', 'fa-solid fa-book-open', 'fa-solid fa-book', 'fa-solid fa-book-open-reader',
@@ -15,6 +16,7 @@ const ICONS = [
 
 export function IconPicker({ value, onChange }: { value: string; onChange: (v: string) => void }) {
   const [open, setOpen] = useState(false);
+  const at = useAT();
   const ref = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -31,7 +33,7 @@ export function IconPicker({ value, onChange }: { value: string; onChange: (v: s
           type="button"
           onClick={() => setOpen((o) => !o)}
           className="w-11 h-11 shrink-0 rounded-xl border border-slate-200 bg-brand-50 text-brand-700 text-lg flex items-center justify-center hover:border-brand-500"
-          aria-label="Choose icon"
+          aria-label={at('Choose icon')}
         >
           {value ? <i className={value} /> : <i className="fa-regular fa-square text-slate-300" />}
         </button>
@@ -56,7 +58,7 @@ export function IconPicker({ value, onChange }: { value: string; onChange: (v: s
             ))}
           </div>
           <p className="text-[11px] text-slate-400 mt-2">
-            Any Font Awesome 6 free icon works, e.g. <code>fa-solid fa-bell</code>.
+            {at('Any Font Awesome 6 free icon works, e.g.')} <code>fa-solid fa-bell</code>
           </p>
         </div>
       )}

@@ -1,7 +1,9 @@
 import { useQuery } from '@tanstack/react-query';
+import { useEffect } from 'react';
 import { Link, Outlet } from 'react-router-dom';
 import { api, ApiError } from '../lib/api';
-import { useLang } from '../lib/i18n';
+import { DEFAULT_LANGUAGES, useLang } from '../lib/i18n';
+import { useAT } from '../admin/i18n';
 import type { SiteData } from '../lib/types';
 import { ApplyModal } from './ApplyModal';
 import { Footer } from './Footer';
@@ -17,14 +19,15 @@ export function FullPageSpinner() {
 }
 
 function PreviewBanner() {
+  const at = useAT();
   return (
     <div className="bg-marigold-400 text-ink text-sm font-semibold font-sans">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-2 flex flex-wrap items-center justify-between gap-2">
         <span className="flex items-center gap-2">
-          <i className="fa-solid fa-eye" /> Preview mode: you are viewing the unpublished draft.
+          <i className="fa-solid fa-eye" /> {at('Preview mode: you are viewing the unpublished draft.')}
         </span>
         <Link to="/admin" className="inline-flex items-center gap-1.5 underline underline-offset-2 hover:no-underline">
-          <i className="fa-solid fa-arrow-left text-xs" /> Back to admin
+          <i className="fa-solid fa-arrow-left text-xs" /> {at('Back to admin')}
         </Link>
       </div>
     </div>
@@ -50,11 +53,18 @@ function StatusScreen({ title, text, onRetry }: { title: string; text: string; o
 }
 
 export function PublicLayout({ mode }: { mode: SiteMode }) {
-  const { ui } = useLang();
+  const { ui, setConfig } = useLang();
   const q = useQuery({
     queryKey: ['site', mode],
     queryFn: () => api.get<SiteData>(mode === 'preview' ? '/admin/preview/site' : '/public/site'),
   });
+
+  // Offer the languages (and interface translations) configured by the administrator.
+  useEffect(() => {
+    if (!q.data) return;
+    const all = q.data.settings.languages?.length ? q.data.settings.languages : DEFAULT_LANGUAGES;
+    setConfig({ languages: all.filter((l) => l.enabled), ui: q.data.settings.ui_strings ?? {} });
+  }, [q.data, setConfig]);
 
   if (q.isPending) return <FullPageSpinner />;
   if (q.isError) {
