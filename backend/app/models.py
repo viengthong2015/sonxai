@@ -1,7 +1,7 @@
 from datetime import datetime
 from typing import Any
 
-from sqlalchemy import Boolean, DateTime, ForeignKey, Integer, String, Text, func
+from sqlalchemy import Boolean, DateTime, ForeignKey, Integer, LargeBinary, String, Text, func
 from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
@@ -138,6 +138,29 @@ class Media(Base):
     original_name: Mapped[str] = mapped_column(String(255), default="", nullable=False)
     content_type: Mapped[str] = mapped_column(String(50), nullable=False)
     size: Mapped[int] = mapped_column(Integer, nullable=False)
+    uploaded_by_id: Mapped[int | None] = mapped_column(
+        ForeignKey("users.id", ondelete="SET NULL"), nullable=True
+    )
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), server_default=func.now(), nullable=False
+    )
+
+
+class LanguageFont(Base):
+    """A font file uploaded for a language. Stored in the database so it survives redeploys.
+
+    Rows are never changed after upload, so a font URL can be cached forever.
+    """
+
+    __tablename__ = "language_fonts"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    original_name: Mapped[str] = mapped_column(String(255), default="", nullable=False)
+    content_type: Mapped[str] = mapped_column(String(40), nullable=False)
+    # CSS @font-face format(): woff2, woff, truetype or opentype
+    format: Mapped[str] = mapped_column(String(20), nullable=False)
+    size: Mapped[int] = mapped_column(Integer, nullable=False)
+    data: Mapped[bytes] = mapped_column(LargeBinary, nullable=False)
     uploaded_by_id: Mapped[int | None] = mapped_column(
         ForeignKey("users.id", ondelete="SET NULL"), nullable=True
     )

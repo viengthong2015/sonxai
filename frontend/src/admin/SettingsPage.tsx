@@ -73,7 +73,7 @@ export function SettingsPage() {
           </>
         }
       />
-      <TranslatingBanner lang={lang}>
+      <TranslatingBanner lang={lang} translationsHref={`/admin/translations?tab=labels&part=site&lang=${lang}`}>
         {mt.available && lang !== SOURCE_LANG && (
           <button className="btn-secondary !py-1.5 !text-xs shrink-0" disabled={translating} onClick={autoTranslate}>
             {translating ? <Spinner className="w-3.5 h-3.5" /> : <i className="fa-solid fa-wand-magic-sparkles" />} {at('Auto-translate empty fields')}

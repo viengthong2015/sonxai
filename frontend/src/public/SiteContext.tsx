@@ -13,11 +13,13 @@ interface SiteCtx {
   openApply: () => void;
   closeApply: () => void;
   applyOpen: boolean;
+  /** Preview only: label every section with the admin screen that edits it. */
+  guide: boolean;
 }
 
 const Ctx = createContext<SiteCtx | null>(null);
 
-export function SiteProvider({ site, mode, children }: { site: SiteData; mode: SiteMode; children: ReactNode }) {
+export function SiteProvider({ site, mode, guide = false, children }: { site: SiteData; mode: SiteMode; guide?: boolean; children: ReactNode }) {
   const [applyOpen, setApplyOpen] = useState(false);
   const base = mode === 'preview' ? '/admin/preview' : '';
 
@@ -38,8 +40,9 @@ export function SiteProvider({ site, mode, children }: { site: SiteData; mode: S
       applyOpen,
       openApply: () => setApplyOpen(true),
       closeApply: () => setApplyOpen(false),
+      guide: mode === 'preview' && guide,
     }),
-    [site, mode, base, resolvePath, applyOpen],
+    [site, mode, base, resolvePath, applyOpen, guide],
   );
   return <Ctx.Provider value={value}>{children}</Ctx.Provider>;
 }

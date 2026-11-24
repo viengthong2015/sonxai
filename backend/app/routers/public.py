@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException, Request, Response, status
 from sqlalchemy.orm import Session
 
 from ..database import get_db
-from ..models import Application
+from ..models import Application, LanguageFont
 from ..schemas import ApplicationCreate
 from ..security import application_limiter, client_ip
 from ..services import latest_publication, page_payload, site_payload
@@ -66,3 +66,16 @@ def submit_application(payload: ApplicationCreate, request: Request, db: Session
     )
     db.commit()
     return {"ok": True}
+
+
+@router.get("/fonts/{font_id}")
+def get_font(font_id: int, db: Session = Depends(get_db)):
+    """A language font file. Rows never change, so browsers may cache it for a year."""
+    font = db.get(LanguageFont, font_id)
+    if font is None:
+        raise HTTPException(status.HTTP_404_NOT_FOUND, "Font not found.")
+    return Response(
+        content=font.data,
+        media_type=font.content_type,
+        headers={"Cache-Control": "public, max-age=31536000, immutable"},
+    )

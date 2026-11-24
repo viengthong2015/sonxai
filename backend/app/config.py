@@ -27,6 +27,8 @@ class Settings(BaseSettings):
 
     upload_dir: Path = BASE_DIR / "uploads"
     max_upload_mb: int = 5
+    # Language fonts are stored in the database (they survive redeploys on hosts without a disk).
+    max_font_mb: int = 10
 
     frontend_dist: Path = BASE_DIR.parent / "frontend" / "dist"
 

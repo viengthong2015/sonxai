@@ -1,10 +1,11 @@
 import type { ReactNode } from 'react';
+import { Link } from 'react-router-dom';
 import { SOURCE_LANG } from '../lib/i18n';
 import { useAT } from './i18n';
 import { useEditLanguages } from './languages';
 
 /** Shown above an editor while writing in a language other than English. */
-export function TranslatingBanner({ lang, children }: { lang: string; children?: ReactNode }) {
+export function TranslatingBanner({ lang, children, translationsHref }: { lang: string; children?: ReactNode; translationsHref?: string }) {
   const at = useAT();
   const language = useEditLanguages().find((l) => l.code === lang);
   if (lang === SOURCE_LANG || !language) return null;
@@ -20,6 +21,9 @@ export function TranslatingBanner({ lang, children }: { lang: string; children?:
         </span>
       </div>
       {children}
+      <Link to={translationsHref ?? `/admin/translations?lang=${lang}`} className="btn-secondary !py-1.5 !text-xs shrink-0">
+        <i className="fa-solid fa-language" /> {at('Open in Translations')}
+      </Link>
     </div>
   );
 }

@@ -19,7 +19,9 @@ const ApplicationsPage = lazyNamed(() => import('./admin/ApplicationsPage'), 'Ap
 const SettingsPage = lazyNamed(() => import('./admin/SettingsPage'), 'SettingsPage');
 const PublishPage = lazyNamed(() => import('./admin/PublishPage'), 'PublishPage');
 const UsersPage = lazyNamed(() => import('./admin/UsersPage'), 'UsersPage');
+const TranslationsPage = lazyNamed(() => import('./admin/TranslationsPage'), 'TranslationsPage');
 const LanguagesPage = lazyNamed(() => import('./admin/LanguagesPage'), 'LanguagesPage');
+const HelpPage = lazyNamed(() => import('./admin/HelpPage'), 'HelpPage');
 
 export default function App() {
   return (
@@ -55,9 +57,11 @@ export default function App() {
               <Route path="menus/:id" element={<PageEditor />} />
               <Route path="applications" element={<ApplicationsPage />} />
               <Route path="settings" element={<SettingsPage />} />
+              <Route path="translations" element={<TranslationsPage />} />
               <Route path="languages" element={<LanguagesPage />} />
               <Route path="publish" element={<PublishPage />} />
               <Route path="users" element={<UsersPage />} />
+              <Route path="help" element={<HelpPage />} />
               <Route path="*" element={<Navigate to="/admin" replace />} />
             </Route>
           </Route>

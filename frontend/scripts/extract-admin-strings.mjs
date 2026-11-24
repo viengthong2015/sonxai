@@ -45,6 +45,7 @@ const frontendFiles = [
   join(frontend, 'src', 'lib', 'api.ts'),
   join(frontend, 'src', 'lib', 'colors.ts'),
   join(frontend, 'src', 'public', 'PublicLayout.tsx'),
+  join(frontend, 'src', 'public', 'SectionGuide.tsx'),
 ];
 for (const file of frontendFiles) {
   const src = readFileSync(file, 'utf8');

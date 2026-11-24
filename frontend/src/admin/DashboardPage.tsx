@@ -92,7 +92,7 @@ export function DashboardPage() {
           <h2 className="font-bold text-slate-900 mb-1">{at('Quick actions')}</h2>
           <Link to="/admin/menus" className="btn-secondary w-full !justify-start"><i className="fa-solid fa-plus w-5 text-brand-600" /> {at('Add a menu or page')}</Link>
           <Link to="/admin/settings" className="btn-secondary w-full !justify-start"><i className="fa-solid fa-sliders w-5 text-brand-600" /> {at('Edit header & footer')}</Link>
-          <Link to="/admin/languages" className="btn-secondary w-full !justify-start"><i className="fa-solid fa-language w-5 text-brand-600" /> {at('Languages & translation')}</Link>
+          <Link to="/admin/translations" className="btn-secondary w-full !justify-start"><i className="fa-solid fa-language w-5 text-brand-600" /> {at('Translations')}</Link>
           <a href="/admin/preview" target="_blank" rel="noopener" className="btn-secondary w-full !justify-start"><i className="fa-solid fa-eye w-5 text-brand-600" /> {at('Preview draft site')}</a>
           <a href="/" target="_blank" rel="noopener" className="btn-secondary w-full !justify-start"><i className="fa-solid fa-globe w-5 text-brand-600" /> {at('Open live website')}</a>
         </div>

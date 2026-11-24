@@ -5,7 +5,8 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "node scripts/extract-admin-strings.mjs && tsc -b && vite build",
+    "build": "node scripts/extract-admin-strings.mjs && node scripts/check-manual.mjs && tsc -b && vite build",
+    "check:manual": "node scripts/check-manual.mjs",
     "typecheck": "tsc -b",
     "preview": "vite preview",
     "i18n:extract": "node scripts/extract-admin-strings.mjs"

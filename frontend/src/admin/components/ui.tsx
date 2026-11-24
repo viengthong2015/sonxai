@@ -103,6 +103,7 @@ export function Modal({
 }) {
   const ref = useRef<HTMLDivElement>(null);
   const at = useAT();
+  const { lang: adminLang } = useAdminI18n();
   useEffect(() => {
     if (!open) return;
     const onKey = (e: KeyboardEvent) => e.key === 'Escape' && onClose();
@@ -126,6 +127,7 @@ export function Modal({
       onMouseDown={(e) => e.target === e.currentTarget && onClose()}
       role="dialog"
       aria-modal="true"
+      lang={adminLang}
     >
       <div ref={ref} className={`bg-white rounded-3xl shadow-2xl border border-slate-100 w-full ${widths[size]} max-h-[92vh] flex flex-col`}>
         <div className="flex items-center justify-between gap-4 px-6 pt-5 pb-4 border-b border-slate-100">

@@ -19,6 +19,9 @@ class LanguageError(ValueError):
     pass
 
 
+FONT_FORMATS = {"woff2", "woff", "truetype", "opentype"}
+
+
 def normalize_languages(settings: dict[str, Any]) -> dict[str, Any]:
     """Validate `languages` and `ui_strings` in site settings; English is always first and on."""
     langs = settings.get("languages")
@@ -45,8 +48,27 @@ def normalize_languages(settings: dict[str, Any]) -> dict[str, Any]:
         mt_code = str(item.get("mt_code", "") or "").strip()
         if mt_code and not MT_CODE_RE.match(mt_code):
             raise LanguageError(f"Language '{code}': '{mt_code}' is not a valid auto-translate code (e.g. hmn, zh-CN).")
+        # Optional font for this language (uploaded through /api/admin/fonts).
+        font_id = item.get("font_id")
+        if font_id in (None, "", 0):
+            font_id = None
+        elif not isinstance(font_id, int) or isinstance(font_id, bool) or font_id < 1:
+            raise LanguageError(f"Language '{code}': invalid font.")
+        font_format = str(item.get("font_format", "") or "")
+        if font_id is not None and font_format not in FONT_FORMATS:
+            raise LanguageError(f"Language '{code}': unsupported font format.")
+        font_name = str(item.get("font_name", "") or "").strip()[:100] if font_id else ""
         seen.add(code)
-        out.append({"code": code, "name": name, "short": short, "enabled": bool(item.get("enabled", True)), "mt_code": mt_code})
+        out.append({
+            "code": code,
+            "name": name,
+            "short": short,
+            "enabled": bool(item.get("enabled", True)),
+            "mt_code": mt_code,
+            "font_id": font_id,
+            "font_name": font_name,
+            "font_format": font_format if font_id else "",
+        })
 
     source = next((lang for lang in out if lang["code"] == SOURCE_LANG), None)
     if source is None:

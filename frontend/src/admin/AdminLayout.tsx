@@ -6,7 +6,9 @@ import { useToast } from '../lib/toast';
 import type { User } from '../lib/types';
 import { useMe } from './auth';
 import { ConfirmProvider, Modal, Spinner } from './components/ui';
-import { AdminLangPicker, msg, useAT } from './i18n';
+import { LanguageFonts } from '../lib/fonts';
+import { AdminLangPicker, msg, useAdminI18n, useAT } from './i18n';
+import { useEditLanguages } from './languages';
 import { PublishButton } from './publish';
 
 const NAV = [
@@ -14,9 +16,11 @@ const NAV = [
   { to: '/admin/menus', label: msg('Menus & Pages'), icon: 'fa-solid fa-bars-staggered' },
   { to: '/admin/applications', label: msg('Applications'), icon: 'fa-solid fa-inbox' },
   { to: '/admin/settings', label: msg('Site settings'), icon: 'fa-solid fa-sliders' },
-  { to: '/admin/languages', label: msg('Languages'), icon: 'fa-solid fa-language' },
+  { to: '/admin/translations', label: msg('Translations'), icon: 'fa-solid fa-language' },
+  { to: '/admin/languages', label: msg('Languages'), icon: 'fa-solid fa-earth-asia' },
   { to: '/admin/publish', label: msg('Publish & history'), icon: 'fa-solid fa-clock-rotate-left' },
   { to: '/admin/users', label: msg('Administrators'), icon: 'fa-solid fa-user-shield' },
+  { to: '/admin/help', label: msg('User manual'), icon: 'fa-solid fa-book-open' },
 ];
 
 function ChangePasswordModal({ open, onClose }: { open: boolean; onClose: () => void }) {
@@ -119,9 +123,32 @@ function UserMenu({ user }: { user: User }) {
   );
 }
 
+const SIDEBAR_KEY = 'sonxai_admin_sidebar_hidden';
+
+function savedSidebarHidden() {
+  try {
+    return localStorage.getItem(SIDEBAR_KEY) === '1';
+  } catch {
+    return false;
+  }
+}
+
 export function AdminLayout() {
+  const { lang: adminLang } = useAdminI18n();
+  const editLanguages = useEditLanguages();
   const me = useMe();
   const [sideOpen, setSideOpen] = useState(false);
+  // Desktop only: hide the sidebar to give the page more room. Remembered per browser.
+  const [sideHidden, setSideHidden] = useState(savedSidebarHidden);
+  const toggleSidebar = () =>
+    setSideHidden((h) => {
+      try {
+        localStorage.setItem(SIDEBAR_KEY, h ? '0' : '1');
+      } catch {
+        /* storage unavailable: the choice just isn't remembered */
+      }
+      return !h;
+    });
   const location = useLocation();
   const at = useAT();
 
@@ -134,10 +161,12 @@ export function AdminLayout() {
 
   return (
     <ConfirmProvider>
-      <div className="min-h-screen bg-slate-50 lg:pl-64">
+      <LanguageFonts languages={editLanguages} />
+      {/* lang: the admin language's font applies to the whole panel (see lib/fonts.tsx). */}
+      <div lang={adminLang} className={`min-h-screen bg-slate-50 transition-[padding] duration-200 ${sideHidden ? 'lg:pl-0' : 'lg:pl-64'}`}>
         {/* Sidebar */}
         <aside
-          className={`fixed inset-y-0 left-0 z-40 w-64 bg-brand-dark text-lapis-50 flex flex-col transition-transform lg:translate-x-0 ${sideOpen ? 'translate-x-0' : '-translate-x-full'}`}
+          className={`fixed inset-y-0 left-0 z-40 w-64 bg-brand-dark text-lapis-50 flex flex-col transition-[transform,visibility] duration-200 ${sideOpen ? 'translate-x-0' : '-translate-x-full'} ${sideHidden ? 'lg:-translate-x-full lg:invisible' : 'lg:translate-x-0'}`}
         >
           <div className="h-16 flex items-center gap-3 px-5 border-b border-white/10">
             <img src="/logo.png" alt="" className="w-10 h-10 object-contain" />
@@ -176,14 +205,24 @@ export function AdminLayout() {
           <button className="lg:hidden icon-btn" onClick={() => setSideOpen(true)} aria-label={at('Open menu')}>
             <i className="fa-solid fa-bars" />
           </button>
-          <Link to="/admin" className="lg:hidden font-extrabold text-slate-900">Sonxai CMS</Link>
+          <button
+            className="hidden lg:inline-flex icon-btn"
+            onClick={toggleSidebar}
+            aria-label={sideHidden ? at('Show sidebar') : at('Hide sidebar')}
+            title={sideHidden ? at('Show sidebar') : at('Hide sidebar')}
+            aria-expanded={!sideHidden}
+          >
+            <i className={sideHidden ? 'fa-solid fa-bars' : 'fa-solid fa-angles-left'} />
+          </button>
+          <Link to="/admin" className={`font-extrabold text-slate-900 ${sideHidden ? '' : 'lg:hidden'}`}>Sonxai CMS</Link>
           <div className="flex-1" />
-          <AdminLangPicker className="hidden sm:inline-flex" />
+          {/* On Translations the only language list is "Translate into", so the two are never confused. */}
+          {!location.pathname.startsWith('/admin/translations') && <AdminLangPicker className="hidden sm:inline-flex" />}
           <PublishButton />
           <UserMenu user={me.data} />
         </header>
 
-        <main className="p-4 sm:p-6 lg:p-8 max-w-6xl">
+        <main className={`p-4 sm:p-6 lg:p-8 ${sideHidden ? 'max-w-screen-2xl' : 'max-w-6xl'}`}>
           <Outlet />
         </main>
       </div>

@@ -3,7 +3,7 @@ import { useEffect } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { api, ApiError } from '../lib/api';
 import { useLang } from '../lib/i18n';
-import type { PageData } from '../lib/types';
+import type { Menu, PageData } from '../lib/types';
 import { BlockRenderer } from './blocks/BlockRenderer';
 import { useSite } from './SiteContext';
 
@@ -25,8 +25,10 @@ export function NotFound() {
 
 export function PageView() {
   const { slug } = useParams();
-  const { mode, site } = useSite();
+  const { mode, site, guide } = useSite();
   const { t, ui } = useLang();
+  // Guide mode needs the page's menu id for "Edit this block" links (preview requires admin login).
+  const menus = useQuery({ queryKey: ['menus'], queryFn: () => api.get<Menu[]>('/admin/menus'), enabled: guide });
 
   const prefix = mode === 'preview' ? '/admin/preview' : '/public';
   const q = useQuery({
@@ -64,5 +66,7 @@ export function PageView() {
       </div>
     );
   }
-  return <BlockRenderer blocks={q.data.blocks} />;
+  const page = q.data;
+  const menu = menus.data?.find((m) => (page.is_home ? m.is_home : m.slug === page.slug));
+  return <BlockRenderer blocks={page.blocks} guide={guide ? { menuId: menu?.id, pageLabel: t(page.label) } : undefined} />;
 }

@@ -77,7 +77,8 @@ The admin username and password are `INITIAL_ADMIN_USERNAME` / `INITIAL_ADMIN_PA
 | **Site settings** | School name and logo, Dashboard button, footer text, contact details, social links, application form grades. |
 | **Publish** | Your edits are saved as a **draft**. Visitors only see them after you click **Publish**. The publish dialog lists what changed. **Preview draft** shows the unpublished site. |
 | **Publish & history** | Every publish is kept as a version. **Restore** loads an old version into the draft; publish it to roll back the live site. |
-| **Languages** | Add **any** language by typing its code and name (e.g. Hmong `hmn`, White Hmong `mww`, Khmer `km`), show or hide it on the website, and order the language switch. **Translation progress** lists what still needs translating per language, with **Translate** buttons and **Auto-translate everything missing**. **Labels and messages** translates the fixed **website text** (form labels, buttons) and the **admin panel text** itself. English is the source: anything not translated shows in English. |
+| **Translations** | Translate from English into the language chosen in **Translate into**. **Label translate**: interface wording (menu names, buttons, form labels, short header/footer labels such as the school name, and the admin panel text). **Content translate**: descriptions and page text (every block of every page, plus footer text, address and search-engine descriptions). Translations apply everywhere; anything not translated shows in English. |
+| **Languages** | Only adds or removes languages (e.g. Hmong `hmn`, White Hmong `mww`, Khmer `km`), shows or hides them on the website and orders the language switch. Each language can have its own **font** (WOFF2/WOFF/TTF/OTF, up to 10 MB, stored in the database so it survives redeploys); it is applied automatically wherever that language is shown, on the website and in the admin panel. No translating happens here. |
 | **Applications** | Admission requests from the "Apply now" pop-up and the Application form block. Set a status and keep internal notes. |
 | **Administrators** | Add or disable admin accounts and reset their passwords. |
 
@@ -89,7 +90,7 @@ GIF and WebP, up to 5 MB.
 - **Website content** (pages, menus, settings): edit any page and pick a language in the editor's language switch.
   Each field shows the English text above it with **Copy English** and **Auto-translate**. Website changes appear after **Publish**.
 - **Admin panel**: every staff member picks their admin language in the top bar (or on the login page).
-  Translate the admin wording under **Languages → Labels and messages → Admin panel text**. These translations apply
+  Translate the admin wording under **Translations → Label translate → Admin panel text**. These translations apply
   immediately (no publishing), because only staff see them. Keep `{placeholders}` such as `{name}` unchanged.
 - **Auto-translate (optional)** uses Google Cloud Translation. Without a key the buttons are hidden and you translate by hand.
   To turn it on:
@@ -97,12 +98,15 @@ GIF and WebP, up to 5 MB.
      (restrict it to the Cloud Translation API). Google requires a billing account; check its current free allowance.
   2. Put the key in `backend/.env`: `GOOGLE_TRANSLATE_API_KEY=your-key` and restart the backend.
   3. If Google uses a different code than yours (e.g. White Hmong `mww` → Google `hmn`), set the language's
-     **Auto-translate code** on the Languages screen.
+     **Auto-translate code** on the **Languages** screen.
 
   Auto-translate only fills **empty** translations; it never overwrites text a person wrote. Always review machine
   translations before publishing. The key stays on the server and is never sent to browsers.
 - **For developers**: admin wording is written in English inside `at('…')` / `msg('…')`. After changing admin text run
   `npm run i18n:extract` (also part of `npm run build`) to refresh `src/admin/catalog.ts`.
+- **User manual** (`src/admin/HelpPage.tsx`): button and screen names are written as `**Name**`, plain emphasis as
+  `__text__`. `npm run check:manual` (also part of `npm run build`) fails if a `**Name**` no longer exists in the
+  admin panel or a sidebar screen has no manual section, so renaming a button means updating the manual too.
 
 ## Security
 

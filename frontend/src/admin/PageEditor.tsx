@@ -245,6 +245,14 @@ export function PageEditor() {
   const menuQ = useQuery({ queryKey: ['menu', menuId], queryFn: () => api.get<Menu>(`/admin/menus/${menuId}`), enabled: Number.isFinite(menuId) });
   const blocksQ = useQuery({ queryKey: ['blocks', menuId], queryFn: () => api.get<Block[]>(`/admin/menus/${menuId}/blocks`), enabled: Number.isFinite(menuId) });
 
+  // ?block=<id> (from the section labels in the preview): open that block and scroll to it.
+  const targetBlock = Number(searchParams.get('block'));
+  useEffect(() => {
+    if (!targetBlock || !blocksQ.data?.some((b) => b.id === targetBlock)) return;
+    setOpenId(targetBlock);
+    requestAnimationFrame(() => document.getElementById(`block-${targetBlock}`)?.scrollIntoView({ behavior: 'smooth', block: 'start' }));
+  }, [targetBlock, blocksQ.data]);
+
   const onDirty = useCallback((bid: number, dirty: boolean) => {
     setDirtyIds((prev) => {
       if (prev.has(bid) === dirty) return prev;
@@ -375,11 +383,12 @@ export function PageEditor() {
             <LangSwitch lang={lang} onChange={setLang} />
             <button className="btn-secondary" onClick={() => setSettingsOpen(true)}><i className="fa-solid fa-gear" /> {at('Settings')}</button>
             <a href={previewHref} target="_blank" rel="noopener" className="btn-secondary"><i className="fa-solid fa-eye" /> {at('Preview')}</a>
+            <a href={`${previewHref}?guide=1`} target="_blank" rel="noopener" className="btn-secondary" title={at('Preview with a label on every section')}><i className="fa-solid fa-tags" /> {at('Section labels')}</a>
           </div>
         </div>
       </div>
 
-      <TranslatingBanner lang={lang}>
+      <TranslatingBanner lang={lang} translationsHref={`/admin/translations?tab=content&page=${menuId}&lang=${lang}`}>
         {mt.available && blocks.length > 0 && (
           <button className="btn-secondary !py-1.5 !text-xs shrink-0" disabled={pageTranslating} onClick={translatePage}>
             {pageTranslating ? <Spinner className="w-3.5 h-3.5" /> : <i className="fa-solid fa-wand-magic-sparkles" />} {at('Auto-translate page')}
@@ -397,7 +406,7 @@ export function PageEditor() {
       ) : (
         <div>
           {blocks.map((b, i) => (
-            <div key={b.id}>
+            <div key={b.id} id={`block-${b.id}`} className="scroll-mt-24">
               {i > 0 && <InsertHere onClick={() => setPickerAt(i)} />}
               <BlockCard
                 block={b}

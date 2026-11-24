@@ -9,7 +9,7 @@ from sqlalchemy.orm import Session
 from ..config import settings
 from ..database import get_db
 from ..deps import get_current_user
-from ..models import Application, Block, Media, Menu, User
+from ..models import Application, Block, LanguageFont, Media, Menu, User
 from ..sanitize import ContentError, sanitize_content
 from ..schemas import (
     ApplicationList,
@@ -265,3 +265,45 @@ def delete_media(media_id: int, db: Session = Depends(get_db)):
     db.delete(media)
     db.commit()
     path.unlink(missing_ok=True)
+
+
+# ---------------------------------------------------------------- language fonts
+def _detect_font(head: bytes) -> tuple[str, str] | None:
+    """(content type, CSS format) from the file's first bytes; the extension is not trusted."""
+    if head.startswith(b"wOF2"):
+        return "font/woff2", "woff2"
+    if head.startswith(b"wOFF"):
+        return "font/woff", "woff"
+    if head.startswith(b"OTTO"):
+        return "font/otf", "opentype"
+    if head.startswith(b"\x00\x01\x00\x00") or head.startswith(b"true"):
+        return "font/ttf", "truetype"
+    return None
+
+
+@router.post("/fonts", status_code=status.HTTP_201_CREATED)
+async def upload_font(
+    file: UploadFile = File(...),
+    user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    max_bytes = settings.max_font_mb * 1024 * 1024
+    content = await file.read(max_bytes + 1)
+    if len(content) > max_bytes:
+        raise HTTPException(status.HTTP_413_REQUEST_ENTITY_TOO_LARGE, f"Fonts must be {settings.max_font_mb} MB or smaller.")
+    detected = _detect_font(content[:4])
+    if detected is None:
+        raise HTTPException(status.HTTP_415_UNSUPPORTED_MEDIA_TYPE, "Only WOFF2, WOFF, TTF and OTF font files are allowed.")
+    ctype, fmt = detected
+    font = LanguageFont(
+        original_name=(file.filename or "font")[:255],
+        content_type=ctype,
+        format=fmt,
+        size=len(content),
+        data=content,
+        uploaded_by_id=user.id,
+    )
+    db.add(font)
+    db.commit()
+    db.refresh(font)
+    return {"id": font.id, "name": font.original_name, "format": font.format, "size": font.size}

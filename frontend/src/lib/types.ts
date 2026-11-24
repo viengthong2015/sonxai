@@ -12,6 +12,12 @@ export interface Language {
   enabled: boolean;
   /** Code the auto-translate service uses, when it differs from `code` (e.g. mww -> hmn). */
   mt_code?: string;
+  /** Uploaded font for this language (served from /api/public/fonts/{id}); null = default fonts. */
+  font_id?: number | null;
+  /** Original file name of the font, shown to staff. */
+  font_name?: string;
+  /** CSS @font-face format: woff2, woff, truetype or opentype. */
+  font_format?: string;
 }
 
 export type BlockType =
