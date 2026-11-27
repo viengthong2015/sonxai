@@ -19,7 +19,8 @@ CONTENT_SECURITY_POLICY = (
     "font-src 'self' data: https://fonts.gstatic.com; "
     "script-src 'self'; "
     "connect-src 'self'; "
-    "frame-ancestors 'none'; base-uri 'self'; form-action 'self'"
+    # 'self': the admin's User manual shows the site's own preview in a frame; other sites still can't.
+    "frame-ancestors 'self'; base-uri 'self'; form-action 'self'"
 )
 
 
@@ -57,7 +58,8 @@ async def security_middleware(request: Request, call_next):
 
     response = await call_next(request)
     response.headers.setdefault("X-Content-Type-Options", "nosniff")
-    response.headers.setdefault("X-Frame-Options", "DENY")
+    # SAMEORIGIN (not DENY): the Page map in the User manual frames the site's own preview.
+    response.headers.setdefault("X-Frame-Options", "SAMEORIGIN")
     response.headers.setdefault("Referrer-Policy", "strict-origin-when-cross-origin")
     response.headers.setdefault("Permissions-Policy", "camera=(), microphone=(), geolocation=()")
     if request.url.path.startswith("/api/admin") or request.url.path.startswith("/api/auth"):
